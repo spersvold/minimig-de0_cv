@@ -1,6 +1,7 @@
 /* amiga_clk.v */
 /* 2012, rok.krajnc@gmail.com */
 
+`timescale 1ns/1ps
 
 module amiga_clk (
   input  wire           rst,        // asynhronous reset input
@@ -34,21 +35,21 @@ end
 initial begin
   clk_114_r     = 1'b1;
   #1;
-  wait (pll_locked_r);
+  wait (!rst);
   #3;
   forever #4.357  clk_114_r   = ~clk_114_r;
 end
 initial begin
   clk_28_r      = 1'b1;
   #1;
-  wait (pll_locked_r);
+  wait (!rst);
   #5;
   forever #17.428 clk_28_r    = ~clk_28_r;
 end
 initial begin
   clk_sdram_r   = 1'b1;
   #1;
-  wait (pll_locked_r);
+  wait (!rst);
   #3;
   forever #4.357  clk_sdram_r = ~clk_sdram_r;
 end
@@ -64,6 +65,16 @@ assign locked = pll_locked_r;
 
 // device-specific PLL/DCM
 `ifdef MINIMIG_ALTERA
+ `ifdef MINIMIG_CYCLONE5
+amiga_clk_altera amiga_clk_i (
+  .rst      (rst      ),
+  .refclk   (clk_in   ),
+  .outclk_0 (clk_sdram),
+  .outclk_1 (clk_114  ),
+  .outclk_2 (clk_28   ),
+  .locked   (locked   )
+);
+ `else
 amiga_clk_altera amiga_clk_i (
   .areset   (rst      ),
   .inclk0   (clk_in   ),
@@ -72,6 +83,7 @@ amiga_clk_altera amiga_clk_i (
   .c2       (clk_28   ),
   .locked   (locked   )
 );
+ `endif
 `endif
 
 `ifdef MINIMIG_XILINX
@@ -112,9 +124,9 @@ assign clk7n_en = clk7n_en_reg;
 
 // amiga clocks & clock enables
 //            __    __    __    __    __
-// clk_28  __/  \__/  \__/  \__/  \__/  
+// clk_28  __/  \__/  \__/  \__/  \__/
 //            ___________             __
-// clk_7   __/           \___________/  
+// clk_7   __/           \___________/
 //            ___________             __
 // c1      __/           \___________/   <- clk28m domain
 //                  ___________

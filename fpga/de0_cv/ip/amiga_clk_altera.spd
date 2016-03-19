@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="amiga_clk_altera_sim/amiga_clk_altera.vo" type="VERILOG" />
+ <topLevel name="amiga_clk_altera" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

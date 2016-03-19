@@ -2,7 +2,8 @@
 
 module indicators (
   // system
-  input  wire           clk,          // clock
+  input  wire           clk,          // 28.37516 MHz clock
+  input  wire           clk7_en,      // 7MHz clock enable
   input  wire           rst,          // reset
   // inputs
   input wire  [  8-1:0] track,        // floppy track number
@@ -30,20 +31,22 @@ sseg_decode #(
   .REG  (1),
   .INV  (1)
 ) sseg_HEX0 (
-  .clk  (clk),
-  .rst  (rst),
-  .num  (track[3:0]),
-  .sseg (hex_0)
+  .clk    (clk),
+  .clk_en (clk7_en),
+  .rst    (rst),
+  .num    (track[3:0]),
+  .sseg   (hex_0)
 );
 
 sseg_decode #(
   .REG  (1),
   .INV  (1)
 ) sseg_HEX1 (
-  .clk  (clk),
-  .rst  (rst),
-  .num  (track[7:4]),
-  .sseg (hex_1)
+  .clk    (clk),
+  .clk_en (clk7_en),
+  .rst    (rst),
+  .num    (track[7:4]),
+  .sseg   (hex_1)
 );
 
 assign hex_2        = 7'h7f;  // off
@@ -60,7 +63,8 @@ always @ (posedge clk or posedge rst) begin
     r1 <= #1 2'b00;
     g0 <= #1 2'b00;
     g1 <= #1 2'b00;
-  end else begin
+  end
+  else if (clk7_en) begin
     r0 <= #1 {r0[0], f_wr};
     r1 <= #1 {r1[0], h_wr};
     g0 <= #1 {g0[0], f_rd};
@@ -79,7 +83,7 @@ reg  [  4-1:0] ctrl_leds;
 always @ (posedge clk, posedge rst) begin
   if (rst)
     ctrl_leds <= #1 4'b0;
-  else
+  else if (clk7_en)
     ctrl_leds <= #1 ctrl_status;
 end
 

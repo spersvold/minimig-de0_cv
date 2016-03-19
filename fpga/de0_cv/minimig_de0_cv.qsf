@@ -1,0 +1,430 @@
+# -*- mode: tcl; mode: font-lock; indent-tabs-mode: nil -*-
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 1991-2015 Altera Corporation. All rights reserved.
+# Your use of Altera Corporation's design tools, logic functions
+# and other software and tools, and its AMPP partner logic
+# functions, and any output files from any of the foregoing
+# (including device programming or simulation files), and any
+# associated documentation or information are expressly subject
+# to the terms and conditions of the Altera Program License
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# the Altera MegaCore Function License Agreement, or other
+# applicable license agreement, including, without limitation,
+# that your use is for the sole purpose of programming logic
+# devices manufactured by Altera and sold by Altera or its
+# authorized distributors.  Please refer to the applicable
+# agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus Prime
+# Version 15.1.1 Build 189 12/02/2015 SJ Standard Edition
+# Date created = 17:18:50  March 17, 2016
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		minimig_de0_cv_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus Prime software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+
+set_global_assignment -name FAMILY "Cyclone V"
+set_global_assignment -name DEVICE 5CEBA4F23C7
+set_global_assignment -name TOP_LEVEL_ENTITY minimig_de0_cv_top
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.1.1
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:18:50  MARCH 17, 2016"
+set_global_assignment -name LAST_QUARTUS_VERSION 15.1.1
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
+set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (Verilog)"
+set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
+set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+set_global_assignment -name OPTIMIZATION_TECHNIQUE SPEED
+set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
+set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA OFF
+set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA OFF
+set_global_assignment -name FMAX_REQUIREMENT "114 MHz"
+set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+## I/O assignments for the DE0-CV board
+source de0_cv_pin_assignments.tcl
+
+set_instance_assignment -name GLOBAL_SIGNAL "DUAL-REGIONAL CLOCK" -to "amiga_clk:amiga_clk|amiga_clk_altera:amiga_clk_i|amiga_clk_altera_0002:amiga_clk_altera_inst|altera_pll:altera_pll_i|outclk_wire[0]"
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "amiga_clk:amiga_clk|amiga_clk_altera:amiga_clk_i|amiga_clk_altera_0002:amiga_clk_altera_inst|altera_pll:altera_pll_i|outclk_wire[1]"
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "amiga_clk:amiga_clk|amiga_clk_altera:amiga_clk_i|amiga_clk_altera_0002:amiga_clk_altera_inst|altera_pll:altera_pll_i|outclk_wire[2]"
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[2]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[3]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[4]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[5]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[6]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[7]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[8]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[9]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[10]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[11]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[12]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[13]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[14]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[15]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[2]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[3]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[4]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[5]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[6]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[7]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[8]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[9]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[10]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[11]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[12]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_BA[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_BA[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_LDQM
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_UDQM
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_RAS_N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_CAS_N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_WE_N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_CS_N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_R[3]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_R[2]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_R[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_R[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_B[3]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_B[2]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_B[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_B[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_G[3]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_G[2]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_G[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_G[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_VS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to VGA_HS
+
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[0]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[1]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[2]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[3]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[4]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[5]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[6]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[7]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[8]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[9]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[10]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[11]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[12]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[13]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[14]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[15]
+
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[0]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[1]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[2]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[3]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[4]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[5]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[6]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[7]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[8]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[9]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[10]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[11]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[12]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[13]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[14]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[15]
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[4]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[5]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[6]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[7]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[8]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[9]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[10]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[11]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_ADDR[12]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[4]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[5]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[6]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[7]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[8]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[9]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[10]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[11]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[12]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[13]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[14]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_DQ[15]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_BA[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_BA[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_LDQM
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_UDQM
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_RAS_N
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_CAS_N
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_WE_N
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_CS_N
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_CKE
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to DRAM_CLK
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_R[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_R[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_R[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_R[0]
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_G[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_G[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_G[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_G[0]
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_B[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_B[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_B[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_B[0]
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_HS
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_VS
+
+## HDL input
+
+## Top level (this one has global defines, so has to be elaborated first)
+set_global_assignment -name VERILOG_FILE ../../rtl/soc/minimig_de0_cv_top.v
+
+## Minimig AGNUS
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_audiodma.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_beamcounter.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_bitplanedma.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_blitter_adrgen.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_blitter_barrelshifter.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_blitter_fill.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_blitter_minterm.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_blitter.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_copper.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_diskdma.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_refresh.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus_spritedma.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/agnus.v
+
+## Minimig AMBER
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/amber.v
+
+## Minimig Cart (ActionReplay)
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/cart.v
+
+## Minimig DENISE
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise_bitplane_shifter.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise_bitplanes.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise_collision.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise_colortable.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise_hamgenerator.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise_playfields.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise_spritepriority.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise_sprites_shifter.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise_sprites.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/denise.v
+
+## Minimig 8250 CIA
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/cia_int.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/cia_timera.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/cia_timerb.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/cia_timerd.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/ciaa_ps2keyboard_map.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/ciaa_ps2keyboard.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/ciaa.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/ciab.v
+
+## Minimig GARY
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/gary.v
+
+## Minimig GAYLE
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/gayle_fifo.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/gayle.v
+
+## Minimig PAULA
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula_audio_channel.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula_audio_mixer.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula_audio_sigmadelta.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula_audio.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula_audio_volume.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula_floppy_fifo.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula_floppy.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula_intcontroller.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula_uart.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/paula.v
+
+## Minimig UserIO
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/userio_ps2mouse.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/userio_osd_spi.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/userio_osd.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/userio.v
+
+## Minimig support files
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/minimig_syscontrol.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/minimig_sram_bridge.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/minimig_m68k_bridge.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/minimig_bankmapper.v
+set_global_assignment -name VERILOG_FILE ../../rtl/minimig/minimig.v
+
+## SDRAM controller with cache
+set_global_assignment -name VERILOG_FILE ../../rtl/sdram/cpu_cache_new.v
+set_global_assignment -name VERILOG_FILE ../../rtl/sdram/sdram_ctrl.v
+
+## TG68K CPU Core
+##set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/tg68k_verilog/TG68K_Pkg.sv
+##set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/tg68k_verilog/TG68K_ALU.sv
+##set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/tg68k_verilog/TG68KdotC_Kernel.sv
+set_global_assignment -name VHDL_FILE ../../rtl/tg68k/TG68K_Pack.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/tg68k/TG68K_ALU.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/tg68k/TG68KdotC_Kernel.vhd
+
+## TG68K CPU Wrapper
+set_global_assignment -name VERILOG_FILE ../../rtl/tg68k/TG68K.v
+
+## Controller module
+set_global_assignment -name VERILOG_FILE ../../rtl/ctrl/qmem_arbiter.v
+set_global_assignment -name VERILOG_FILE ../../rtl/ctrl/qmem_bridge.v
+set_global_assignment -name VERILOG_FILE ../../rtl/ctrl/qmem_bus_nosram.v
+set_global_assignment -name VERILOG_FILE ../../rtl/ctrl/qmem_decoder.v
+set_global_assignment -name VERILOG_FILE ../../rtl/ctrl/ctrl_regs.v
+set_global_assignment -name VERILOG_FILE ../../rtl/ctrl/ctrl_clk.v
+set_global_assignment -name VERILOG_FILE ../../rtl/ctrl/ctrl_rst.v
+set_global_assignment -name VERILOG_FILE ../../rtl/ctrl/ctrl_top_nosram.v
+
+## OR1200 CPU
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_alu.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_amultp2_32x32.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_cfgr.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_cpu.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_ctrl.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_dc_fsm.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_dc_ram.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_dc_tag.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_dc_top.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_defines.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_dmmu_tlb.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_dmmu_top.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_du.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_except.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_freeze.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_genpc.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_gmultp2_32x32.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_ic_fsm.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_ic_ram.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_ic_tag.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_ic_top.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_if.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_immu_tlb.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_immu_top.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_iwb_biu.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_lsu.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_mem2reg.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_mult_mac.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_operandmuxes.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_pic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_pm.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_qmem_top.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_reg2mem.v
+#set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_rfram_generic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_rf.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_sb_fifo.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_sb.v
+
+## Register File (RF) rams
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_dpram_32x32.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_tpram_32x32.v
+
+## 8KB cache rams
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_2048x32_bw.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_2048x32.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_512x20.v
+
+## 4KB cache rams
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_1024x32_bw.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_1024x32.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_256x21.v
+
+## 512B cache rams
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_128x32.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_32x24.v
+
+## MMU rams
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_64x14.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_64x22.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_64x24.v
+
+## (not used?)
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_1024x8.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_spram_2048x8.v
+
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_sprs.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_tt.v
+##set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_wb_biu.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_wbmux.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_xcv_ram32x8d.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_top.v
+set_global_assignment -name VERILOG_FILE ../../rtl/or1200/or1200_top_wrapper.v
+
+## Indicators (LEDs, 7-segment displays.)
+set_global_assignment -name VERILOG_FILE ../../rtl/io/indicators.v
+set_global_assignment -name VERILOG_FILE ../../rtl/io/sseg_decode.v
+set_global_assignment -name VERILOG_FILE ../../rtl/io/i_sync.v
+
+## Host controller
+set_global_assignment -name VERILOG_FILE host_controller.v
+
+## Amiga clock module
+set_global_assignment -name VERILOG_FILE ../../rtl/clock/amiga_clk.v
+
+## Support file
+set_global_assignment -name VERILOG_FILE ../../rtl/fifo/sync_fifo.v
+
+## Chip specific Altera IP
+set_global_assignment -name QIP_FILE ip/amiga_clk_altera.qip
+set_global_assignment -name QIP_FILE ip/dpram_256x32.qip
+set_global_assignment -name QIP_FILE ip/dpram_be_1024x16.qip
+set_global_assignment -name QIP_FILE ip/ctrl_boot.qip
+set_global_assignment -name QIP_FILE ip/ctrl_clk_altera.qip
+
+## SDC constraints
+set_global_assignment -name SDC_FILE minimig_de0_cv.sdc
+
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -27,8 +27,8 @@ module qmem_bridge #(
   // slave
   input  wire           s_clk,
   output reg  [SAW-1:0] s_adr,
-  output reg            s_cs,
-  output reg            s_we,
+  output reg            s_cs = 1'b0,
+  output reg            s_we = 1'b0,
   output reg  [SSW-1:0] s_sel,
   output reg  [SDW-1:0] s_dat_w,
   input  wire [SDW-1:0] s_dat_r,

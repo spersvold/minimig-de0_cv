@@ -40,20 +40,13 @@ module sdram_ctrl(
   output reg  [  2-1:0] dqm,
   inout  wire [ 16-1:0] sdata,
   // host
-  input  wire [ 16-1:0] hostWR,
   input  wire [ 24-1:0] hostAddr,
   input  wire [  3-1:0] hostState,
   input  wire           hostL,
   input  wire           hostU,
+  input  wire [ 16-1:0] hostWR,
   output reg  [ 16-1:0] hostRD,
   output wire           hostena,
-  //input  wire           host_cs,
-  //input  wire [ 24-1:0] host_adr,
-  //input  wire           host_we,
-  //input  wire [  2-1:0] host_bs,
-  //input  wire [ 16-1:0] host_wdat,
-  //output reg  [ 16-1:0] host_rdat,
-  //output wire           host_ack,
   // chip
   input  wire    [23:1] chipAddr,
   input  wire           chipL,
@@ -74,8 +67,7 @@ module sdram_ctrl(
   output reg            enaWRreg,
   output reg            ena7RDreg,
   output reg            ena7WRreg,
-  output wire           cpuena,
-  output reg            enaRDreg
+  output wire           cpuena
 );
 
 
@@ -129,10 +121,10 @@ reg  [ 2-1:0] cas_dqm;
 reg           init_done;
 wire [16-1:0] datain;
 reg  [16-1:0] datawr;
-reg  [25-1:0] casaddr;
+reg  [25-1:0] casaddr = 25'h0;
 reg           sdwrite;
 reg  [16-1:0] sdata_reg;
-wire [25-1:0] zmAddr;
+wire [25-1:0] zmAddr /* synthesis keep */;
 reg           zena;
 reg  [64-1:0] zcache;
 reg  [24-1:0] zcache_addr;
@@ -537,13 +529,11 @@ end
 always @ (posedge sysclk) begin
   if(!reset_sdstate) begin
     sdwrite       <= #1 1'b0;
-    enaRDreg      <= #1 1'b0;
     enaWRreg      <= #1 1'b0;
     ena7RDreg     <= #1 1'b0;
     ena7WRreg     <= #1 1'b0;
   end else begin
     sdwrite       <= #1 1'b0;
-    enaRDreg      <= #1 1'b0;
     enaWRreg      <= #1 1'b0;
     ena7RDreg     <= #1 1'b0;
     ena7WRreg     <= #1 1'b0;
@@ -780,8 +770,7 @@ always @ (posedge sysclk) begin
           // Always bank zero for SPI host CPU
           slot1_bank          <= #1 2'b00;
           cas_dqm             <= #1 {hostU,hostL};
-          sd_cs               <= #1 4'b1110;
-          // ACTIVE
+          sd_cs               <= #1 4'b1110; // ACTIVE
           sd_ras              <= #1 1'b0;
           casaddr             <= #1 zmAddr;
           cas_sd_cas          <= #1 1'b0;

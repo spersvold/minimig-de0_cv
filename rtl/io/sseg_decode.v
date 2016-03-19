@@ -20,6 +20,7 @@ module sseg_decode #(
   parameter INV = 1           // invert outputs
 )(
   input  wire           clk,
+  input  wire           clk_en,
   input  wire           rst,
   input  wire [  4-1:0] num,  // input
   output wire [  7-1:0] sseg  // output
@@ -53,20 +54,20 @@ begin
 end
 
 
-generate if (REG == 1) begin
+generate
+if (REG == 1) begin : gen_w_reg
   reg [  7-1:0] sseg_reg;
   always @ (posedge clk, posedge rst) begin
     if (rst)
       sseg_reg <= #1 7'h0;
-    else
+    else if (clk_en)
       sseg_reg <= #1 INV ? ~sseg_decode : sseg_decode;
   end
   assign sseg = sseg_reg;
-end else begin
+end
+else begin : gen_no_reg
   assign sseg = INV ? ~sseg_decode : sseg_decode;
 end
 endgenerate
 
-
 endmodule
-

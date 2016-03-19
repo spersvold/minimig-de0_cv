@@ -29,7 +29,7 @@ module ctrl_regs #(
   output reg            minimig_rst=1,
   output reg            cpu_rst=1,
   input  wire [  4-1:0] ctrl_cfg,
-  output reg  [  4-1:0] ctrl_status, 
+  output reg  [  4-1:0] ctrl_status,
   input  wire [  4-1:0] sys_status,
   output wire           uart_txd,
   input  wire           uart_rxd,
@@ -67,10 +67,10 @@ localparam REG_SPI_CS     = 4'h8;
 localparam REG_SPI_DAT    = 4'h9;
 // SPI_BLOCK          = 0x800028
 localparam REG_SPI_BLOCK  = 4'ha;
-// 
+//
 
 // address width for register decoding
-localparam RAW          = 4; 
+localparam RAW          = 4;
 
 // UART TxD counter value for 115200 @ 50MHz system clock (= 50000000 / 115200)
 localparam TXD_CNT      = 9'd434;
@@ -108,17 +108,12 @@ end
 
 reg              sys_rst_en;
 
-// set initial system reset state
-initial sys_rst = 0;
-initial minimig_rst = 0;
-initial cpu_rst = 0;
-
 // system reset
 always @ (posedge clk, posedge rst) begin
   if (rst) begin
     sys_rst     <= #1 1'b0;
-    minimig_rst <= #1 1'b0;
-    cpu_rst     <= #1 1'b0;
+    minimig_rst <= #1 1'b1;
+    cpu_rst     <= #1 1'b1;
   end else if (sys_rst_en) begin
     sys_rst     <= #1 dat_w[0];
     minimig_rst <= #1 dat_w[1];
@@ -299,7 +294,7 @@ always @ (posedge clk, posedge rst) begin
     pre_timer <= #1 TIMER_CNT - 16'd1;
   else if (~|pre_timer)
     pre_timer <= #1 TIMER_CNT - 16'd1;
-  else 
+  else
     pre_timer <= #1 pre_timer - 16'd1;
 end
 
@@ -496,7 +491,7 @@ always @ (*) begin
     REG_SYS_STAT  : dat_r = {28'h0000000, sys_status};
     REG_UART_RX   : dat_r = {24'h000000, rx_reg};
     REG_UART_STAT : dat_r = {28'h0000000, tx_ready, rx_ready, rx_miss, rx_valid};
-    REG_TIMER     : dat_r = {16'h0000, timer}; 
+    REG_TIMER     : dat_r = {16'h0000, timer};
     REG_SPI_DIV   : dat_r = {26'h0000000, spi_div_r};
     REG_SPI_DAT   : dat_r = {24'h000000, spi_dat_r};
     default       : dat_r = 32'hxxxxxxxx;

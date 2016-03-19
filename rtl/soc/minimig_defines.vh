@@ -22,6 +22,16 @@
 `define MINIMIG_PS2_MOUSE
 `endif
 
+// minimig-de0-cv
+`ifdef MINIMIG_DE0_CV
+`define MINIMIG_ALTERA
+`define MINIMIG_CYCLONE5
+`define MINIMIG_VIDEO_FILTER
+`define MINIMIG_SERIAL_AUDIO
+`define MINIMIG_PS2_KEYBOARD
+`define MINIMIG_PS2_MOUSE
+`endif
+
 // minimig-avnet
 `ifdef MINIMIG_AVNET
 `define MINIMIG_XILINX

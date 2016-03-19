@@ -12,6 +12,16 @@ module ctrl_clk (
 
 
 `ifdef MINIMIG_ALTERA
+ `ifdef MINIMIG_CYCLONE5
+ctrl_clk_altera ctrl_clk_i (
+  .refclk   (inclk0 ),
+  .rst      (1'b0   ),
+  .outclk_0 (c0     ),
+  .outclk_1 (c1     ),
+  .outclk_2 (c2     ),
+  .locked   (locked )
+);
+ `else
 ctrl_clk_altera ctrl_clk_i (
   .inclk0   (inclk0 ),
   .c0       (c0     ),
@@ -19,6 +29,7 @@ ctrl_clk_altera ctrl_clk_i (
   .c2       (c2     ),
   .locked   (locked )
 );
+ `endif
 `endif
 
 

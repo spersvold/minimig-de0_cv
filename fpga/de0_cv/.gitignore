@@ -1,0 +1,14 @@
+PLLJ_PLLSPE_INFO.txt
+c5_pin_model_dump.txt
+compile.log
+csrc
+simv
+simv.daidir
+simv.log
+simulation
+*.key
+*.vpd
+*.qws
+greybox_tmp
+output_files
+DVEfiles

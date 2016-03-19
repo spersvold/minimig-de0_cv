@@ -62,7 +62,6 @@ module TG68K
    output wire [31:0]          ramaddr,
    output wire [ 5:0]          cpustate,
    output wire                 nResetOut,
-   output wire                 skipFetch,
    output wire                 cpuDMA,
    output wire                 ramlds,
    output wire                 ramuds,
@@ -144,6 +143,7 @@ module TG68K
 
    //
 
+`ifndef NO_VHDL_SUPPORT
    TG68KdotC_Kernel #
      (.SR_Read        (SR_Read),
       .VBR_Stackframe (VBR_Stackframe),
@@ -170,11 +170,22 @@ module TG68K
       .FC             ( ),
       .clr_berr       ( ),
       // for debug
-      .skipFetch      (skipFetch),
+      .skipFetch      ( ),
       .regin_out      ( ),
       .CACR_out       (CACR_out),
       .VBR_out        (VBR_out)
       );
+`else // !`ifndef NO_VHDL_SUPPORT
+   assign cpuaddr    = 32'h0;
+   assign data_write = 16'h0;
+   assign wr         = 1'b1;
+   assign uds_in     = 1'b1;
+   assign lds_in     = 1'b1;
+   assign state      = 2'b01;       //  -- 00-> fetch code 10->read data 11->write data 01->no memaccess
+   assign nResetOut  = 1'b1;
+   assign CACR_out   = 4'b000;
+   assign VBR_out    = 32'h0;
+`endif
 
    // NMI
    always @(posedge clk) begin
@@ -210,6 +221,7 @@ module TG68K
                                                               (cpuaddr[23:21] == 3'b011) |
                                                               (cpuaddr[23:21] == 3'b100)) & (z2ram_ena == 1'b1);
 //   assign sel_eth        = (cpuaddr[31:24] == eth_base) & (eth_cfgd == 1'b1);
+   assign sel_eth        = 1'b0;
    assign sel_chipram    = (cpuaddr[31:24] == 8'b00000000) & (cpuaddr[23:21] == 3'b000) & (turbochip_ena == 1'b1) & (turbochip_d == 1'b1); // $000000 - $1FFFFF
 //   assign sel_chipram    = (sel_z3ram != 1'b1) & (turbochip_ena == 1'b1) & (turbochip_d == 1'b1) & (cpuaddr[23:21] == 3'b000);             // $000000 - $1FFFFF
    assign sel_kickram    = (cpuaddr[31:24] == 8'b00000000) & ((cpuaddr[23:19] == 5'b11111) | (cpuaddr[23:19] == 5'b11100)) & (turbochip_ena == 1'b1) & (turbokick_d == 1'b1); // $f8xxxx, e0xxxx

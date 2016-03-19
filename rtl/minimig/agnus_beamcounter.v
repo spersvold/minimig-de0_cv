@@ -37,8 +37,8 @@ module agnus_beamcounter
 	input	[15:0] data_in,			// bus data in
 	output	reg [15:0] data_out,	// bus data out
 	input 	[8:1] reg_address_in,	// register address inputs
-	output	reg [8:0] hpos,			// horizontal beam counter (140ns)
-	output	reg [10:0] vpos,		// vertical beam counter
+	output	reg [8:0] hpos=0,			// horizontal beam counter (140ns)
+	output	reg [10:0] vpos=0,		// vertical beam counter
 	output	reg _hsync,				// horizontal sync
 	output	reg _vsync,				// vertical sync
 	output	_csync,					// composite sync
@@ -63,38 +63,38 @@ reg		pal;			// pal mode switch
 reg		long_line;		// long line signal for NTSC compatibility (actually long lines are not supported yet)
 reg		vser;			// vertical sync serration pulses for composite sync
 
-//register names and adresses		
-parameter	VPOSR    = 9'h004;
-parameter	VPOSW    = 9'h02A;
-parameter	VHPOSR   = 9'h006;
-parameter	VHPOSW   = 9'h02C;
-parameter	BPLCON0  = 9'h100;
-parameter	HTOTAL   = 9'h1C0;
-parameter	HSSTOP   = 9'h1C2;
-parameter	HBSTRT   = 9'h1C4;
-parameter	HBSTOP   = 9'h1C6;
-parameter	VTOTAL   = 9'h1C8;
-parameter	VSSTOP   = 9'h1CA;
-parameter	VBSTRT   = 9'h1CC;
-parameter	VBSTOP   = 9'h1CE;
-parameter	HSSTRT   = 9'h1DE;
-parameter	BEAMCON0 = 9'h1DC;
-parameter	VSSTRT   = 9'h1E0;
-parameter	HCENTER  = 9'h1E2;
+//register names and adresses
+localparam [ 8:0] VPOSR    = 9'h004;
+localparam [ 8:0] VPOSW    = 9'h02A;
+localparam [ 8:0] VHPOSR   = 9'h006;
+localparam [ 8:0] VHPOSW   = 9'h02C;
+localparam [ 8:0] BPLCON0  = 9'h100;
+localparam [ 8:0] HTOTAL   = 9'h1C0;
+localparam [ 8:0] HSSTOP   = 9'h1C2;
+localparam [ 8:0] HBSTRT   = 9'h1C4;
+localparam [ 8:0] HBSTOP   = 9'h1C6;
+localparam [ 8:0] VTOTAL   = 9'h1C8;
+localparam [ 8:0] VSSTOP   = 9'h1CA;
+localparam [ 8:0] VBSTRT   = 9'h1CC;
+localparam [ 8:0] VBSTOP   = 9'h1CE;
+localparam [ 8:0] HSSTRT   = 9'h1DE;
+localparam [ 8:0] BEAMCON0 = 9'h1DC;
+localparam [ 8:0] VSSTRT   = 9'h1E0;
+localparam [ 8:0] HCENTER  = 9'h1E2;
 
-parameter	HBSTRT_VAL      = 17+4+4;	// horizontal blanking start
-parameter	HSSTRT_VAL      = 29+4+4;	// front porch = 1.6us (29)
-parameter	HSSTOP_VAL      = 63-1+4+4;	// hsync pulse duration = 4.7us (63)
-parameter	HBSTOP_VAL      = 103-5+4;	// back porch = 4.7us (103) shorter blanking for overscan visibility
-parameter	HCENTER_VAL     = 256+4+4;	// position of vsync pulse during the long field of interlaced screen
-parameter	VSSTRT_VAL      = 2; //3	// vertical sync start
-parameter	VSSTOP_VAL      = 5;	// PAL vsync width: 2.5 lines (NTSC: 3 lines - not implemented)
-parameter	VBSTRT_VAL      = 0;	// vertical blanking start
-parameter HTOTAL_VAL      = 8'd227 - 8'd1; // line length of 227 CCKs in PAL mode (NTSC line length of 227.5 CCKs is not supported)
-parameter VTOTAL_PAL_VAL  = 11'd312 - 11'd1; // total number of lines (PAL: 312 lines, NTSC: 262)
-parameter VTOTAL_NTSC_VAL = 11'd262 - 11'd1; // total number of lines (PAL: 312 lines, NTSC: 262)
-parameter VBSTOP_PAL_VAL  = 9'd25; // vertical blanking end (PAL 26 lines, NTSC vblank 21 lines)
-parameter VBSTOP_NTSC_VAL = 9'd20; // vertical blanking end (PAL 26 lines, NTSC vblank 21 lines)
+localparam [ 8:0] HBSTRT_VAL      = 9'd17+9'd4+9'd4;     // horizontal blanking start
+localparam [ 8:0] HSSTRT_VAL      = 9'd29+9'd4+9'd4;     // front porch = 1.6us (29)
+localparam [ 8:0] HSSTOP_VAL      = 9'd63-9'd1+9'd4+9'd4;// hsync pulse duration = 4.7us (63)
+localparam [ 8:0] HBSTOP_VAL      = 9'd103-9'd5+9'd4;    // back porch = 4.7us (103) shorter blanking for overscan visibility
+localparam [ 8:0] HCENTER_VAL     = 9'd256+9'd4+9'd4;    // position of vsync pulse during the long field of interlaced screen
+localparam [ 8:0] VSSTRT_VAL      = 9'd2; //3   // vertical sync start
+localparam [ 8:0] VSSTOP_VAL      = 9'd5;       // PAL vsync width: 2.5 lines (NTSC: 3 lines - not implemented)
+localparam [ 8:0] VBSTRT_VAL      = 9'd0;       // vertical blanking start
+localparam [ 8:0] HTOTAL_VAL      = 9'd227 - 9'd1; // line length of 227 CCKs in PAL mode (NTSC line length of 227.5 CCKs is not supported)
+localparam [10:0] VTOTAL_PAL_VAL  = 11'd312 - 11'd1; // total number of lines (PAL: 312 lines, NTSC: 262)
+localparam [10:0] VTOTAL_NTSC_VAL = 11'd262 - 11'd1; // total number of lines (PAL: 312 lines, NTSC: 262)
+localparam [10:0] VBSTOP_PAL_VAL  = 11'd25; // vertical blanking end (PAL 26 lines, NTSC vblank 21 lines)
+localparam [10:0] VBSTOP_NTSC_VAL = 11'd20; // vertical blanking end (PAL 26 lines, NTSC vblank 21 lines)
 
 //wire	[8:0] vbstop;		// vertical blanking stop
 
@@ -163,7 +163,7 @@ always @(posedge clk)
   	else if (reg_address_in[8:1] == BPLCON0[8:1])
   		ersy <= data_in[1];
   end
-		
+
 //BPLCON0 register
 always @(posedge clk)
   if (clk7_en) begin
@@ -276,7 +276,7 @@ always @(posedge clk)
 always @(posedge clk)
   if (clk7_en) begin
   	if (reg_address_in[8:1]==VHPOSW[8:1])
-  		hpos[8:1] <= data_in[7:0]; 
+  		hpos[8:1] <= data_in[7:0];
   	else if (end_of_line)
   		hpos[8:1] <= 0;
   	else if (cck && (~ersy || |hpos[8:1]))
@@ -343,7 +343,7 @@ always @(posedge clk)
 //maximum position of vertical beam position
 assign vpos_equ_vtotal = vpos==vtotal ? 1'b1 : 1'b0;
 
-//extra line in interlaced mode	
+//extra line in interlaced mode
 always @(posedge clk)
   if (clk7_en) begin
   	if (vpos_inc)
@@ -389,7 +389,7 @@ always @(posedge clk)
   	if ((vpos==vsstrt && hpos==hsstrt && !long_frame) || (vpos==vsstrt && hpos==hcenter && long_frame))
   		_vsync <= 1'b0;
   	else if ((vpos==vsstop && hpos==hcenter && !long_frame) || (vpos==vsstop+1 && hpos==hsstrt && long_frame))
-  		_vsync <= 1'b1;		
+  		_vsync <= 1'b1;
   end
 
 //apparently generating csync from vsync alligned with leading edge of hsync results in malfunction of the AD724 CVBS/S-Video encoder (no colour in interlaced mode)
@@ -401,7 +401,7 @@ always @(posedge clk)//sync
   	else if (hpos==hsstrt)//end of sync pulse	(sync pulse = 4.65us)
   		vser <= 1'b0;
   end
-		
+
 //composite sync
 assign _csync = _hsync & _vsync | vser; //composite sync with serration pulses
 
@@ -429,7 +429,7 @@ assign vbl = (vpos <= vbstop) ? 1'b1 : 1'b0;
 //vertical blanking end (last line)
 assign vblend = vpos==vbstop ? 1'b1 : 1'b0;
 
-//composite display blanking		
+//composite display blanking
 always @(posedge clk)
   if (clk7_en) begin
   	if (hpos==hbstrt)//start of blanking (active line=51.88us)

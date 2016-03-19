@@ -1,3 +1,6 @@
+// -*- mode: verilog; mode: font-lock; indent-tabs-mode: nil -*-
+// vi: set et ts=3 sw=3 sts=3:
+//
 // Copyright 2006, 2007 Dennis van Weeren
 //
 // This file is part of Minimig
@@ -73,476 +76,329 @@
 // SB:
 // 2011-04-02 - added ciaa port b (parallel) register to let Unreal game work and some trainer store data
 // 2011-04-24 - fixed TOD read
+//
+
+// SP:
+// 2016-03-24 - cleanup
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
 
-/*cia a*/
 module ciaa
-(
-  input   clk,          // clock
-  input clk7_en,
-  input clk7n_en,
-  input   aen,          // adress enable
-  input  rd,          // read enable
-  input  wr,          // write enable
-  input   reset,         // reset
-  input   [3:0] rs,         // register select (address)
-  input   [7:0] data_in,    // bus data in
-  output   [7:0] data_out,    // bus data out
-  input   tick,        // tick (counter input for TOD timer)
-  input   eclk,          // eclk (counter input for timer A/B)
-  output   irq,           // interrupt request out
-  input  [7:2] porta_in,   // porta in
-  output   [3:0] porta_out,  // porta out
-  output  kbdrst,        // keyboard reset out
-  inout  kbddat,        // ps2 keyboard data
-  inout  kbdclk,        // ps2 keyboard clock
-  input  keyboard_disabled,  // disable keystrokes
-  input kbd_mouse_strobe,
-  input kms_level,
-  input [1:0] kbd_mouse_type,
-  input [7:0] kbd_mouse_data,
-  output  [7:0] osd_ctrl,    // osd control
-  output  _lmb,
-  output  _rmb,
-  output  [5:0] _joy2,
-  output  aflock,       // auto fire lock
-  output  freeze,        // Action Replay freeze key
-  input  disk_led,      // floppy disk activity LED
-  output [5:0] mou_emu,
-  output [5:0] joy_emu,
-  input hrtmon_en
-);
+  (
+   input  wire       clk,          // clock
+   input  wire       clk7_en,
+   input  wire       clk7n_en,
+   input  wire       aen,          // adress enable
+   input  wire       rd,           // read enable
+   input  wire       wr,           // write enable
+   input  wire       reset,        // reset
+   input  wire [3:0] rs,           // register select (address)
+   input  wire [7:0] data_in,      // bus data in
+   output wire [7:0] data_out,     // bus data out
+   input  wire       tick,         // tick (counter input for TOD timer)
+   input  wire       eclk,         // eclk (counter input for timer A/B)
+   output wire       irq,          // interrupt request out
+   input  wire [7:2] porta_in,     // porta in
+   output wire [3:0] porta_out,    // porta out
+   output wire       kbdrst,       // keyboard reset out
+   inout             kbddat,       // ps2 keyboard data
+   inout             kbdclk,       // ps2 keyboard clock
+   input  wire       key_disable,  // disable keystrokes
+   output wire [7:0] osd_ctrl,     // osd control
+   output wire       aflock,       // auto fire lock
+   output wire       freeze,       // Action Replay freeze key
+   input  wire       disk_led,     // floppy disk activity LED
+   output wire [5:0] mou_emu,
+   output wire [5:0] joy_emu,
+   input  wire       hrtmon_en
+   );
 
-// local signals
-wire   [7:0] icr_out;
-wire  [7:0] tmra_out;
-wire  [7:0] tmrb_out;
-wire  [7:0] tmrd_out;
-wire  [7:0] sdr_out;
-reg    [7:0] pa_out;
-reg    [7:0] pb_out;
-wire  [7:0] portb_out;
-wire  alrm;        // TOD interrupt
-wire  ta;          // TIMER A interrupt
-wire  tb;          // TIMER B interrupt
-wire  tmra_ovf;      // TIMER A underflow (for Timer B)
+   // local signals
+   wire [7:0]        icr_out;
+   wire [7:0]        tmra_out;
+   wire [7:0]        tmrb_out;
+   wire [7:0]        tmrd_out;
+   wire [7:0]        sdr_out;
+   reg [7:0]         pa_out;
+   reg [7:0]         pb_out;
+   wire [7:0]        portb_out;
+   wire              alrm;        // TOD interrupt
+   wire              ta;          // TIMER A interrupt
+   wire              tb;          // TIMER B interrupt
+   wire              tmra_ovf;    // TIMER A underflow (for Timer B)
 
-wire  spmode;        // TIMER A Serial Port Mode (0-input, 1-output)
-wire  ser_tx_irq;      // serial port transmit interrupt request
-reg    [3:0] ser_tx_cnt;   // serial port transmit bit counter
-reg    ser_tx_run;      // serial port is transmitting
+   wire              spmode;      // TIMER A Serial Port Mode (0-input, 1-output)
+   wire              ser_tx_irq;  // serial port transmit interrupt request
+   reg [3:0]         ser_tx_cnt;  // serial port transmit bit counter
+   reg               ser_tx_run;  // serial port is transmitting
 
-reg    tick_del;      // required for edge detection
+   reg               tick_del;    // required for edge detection
 
-//----------------------------------------------------------------------------------
-// address decoder
-//----------------------------------------------------------------------------------
-wire  pra,prb,ddra,ddrb,cra,talo,tahi,crb,tblo,tbhi,tdlo,tdme,tdhi,icrs,sdr;
-wire  enable;
+   //----------------------------------------------------------------------------------
+   // address decoder
+   //----------------------------------------------------------------------------------
+   wire              pra,prb,ddra,ddrb,cra,talo,tahi,crb,tblo,tbhi,tdlo,tdme,tdhi,icrs,sdr;
+   wire              enable;
 
-assign enable = aen & (rd | wr);
+   assign enable = aen & (rd | wr);
 
-// decoder
-assign  pra  = (enable && rs==4'h0) ? 1'b1 : 1'b0;
-assign  prb  = (enable && rs==4'h1) ? 1'b1 : 1'b0;
-assign  ddra = (enable && rs==4'h2) ? 1'b1 : 1'b0;
-assign  ddrb = (enable && rs==4'h3) ? 1'b1 : 1'b0;
-assign  talo = (enable && rs==4'h4) ? 1'b1 : 1'b0;
-assign  tahi = (enable && rs==4'h5) ? 1'b1 : 1'b0;
-assign  tblo = (enable && rs==4'h6) ? 1'b1 : 1'b0;
-assign  tbhi = (enable && rs==4'h7) ? 1'b1 : 1'b0;
-assign  tdlo = (enable && rs==4'h8) ? 1'b1 : 1'b0;
-assign  tdme = (enable && rs==4'h9) ? 1'b1 : 1'b0;
-assign  tdhi = (enable && rs==4'hA) ? 1'b1 : 1'b0;
-assign  sdr  = (enable && rs==4'hC) ? 1'b1 : 1'b0;
-assign  icrs = (enable && rs==4'hD) ? 1'b1 : 1'b0;
-assign  cra  = (enable && rs==4'hE) ? 1'b1 : 1'b0;
-assign  crb  = (enable && rs==4'hF) ? 1'b1 : 1'b0;
+   // decoder
+   assign  pra  = (enable && rs==4'h0) ? 1'b1 : 1'b0;
+   assign  prb  = (enable && rs==4'h1) ? 1'b1 : 1'b0;
+   assign  ddra = (enable && rs==4'h2) ? 1'b1 : 1'b0;
+   assign  ddrb = (enable && rs==4'h3) ? 1'b1 : 1'b0;
+   assign  talo = (enable && rs==4'h4) ? 1'b1 : 1'b0;
+   assign  tahi = (enable && rs==4'h5) ? 1'b1 : 1'b0;
+   assign  tblo = (enable && rs==4'h6) ? 1'b1 : 1'b0;
+   assign  tbhi = (enable && rs==4'h7) ? 1'b1 : 1'b0;
+   assign  tdlo = (enable && rs==4'h8) ? 1'b1 : 1'b0;
+   assign  tdme = (enable && rs==4'h9) ? 1'b1 : 1'b0;
+   assign  tdhi = (enable && rs==4'hA) ? 1'b1 : 1'b0;
+   assign  sdr  = (enable && rs==4'hC) ? 1'b1 : 1'b0;
+   assign  icrs = (enable && rs==4'hD) ? 1'b1 : 1'b0;
+   assign  cra  = (enable && rs==4'hE) ? 1'b1 : 1'b0;
+   assign  crb  = (enable && rs==4'hF) ? 1'b1 : 1'b0;
 
-//----------------------------------------------------------------------------------
-// data_out multiplexer
-//----------------------------------------------------------------------------------
-assign data_out = icr_out | tmra_out | tmrb_out | tmrd_out | sdr_out | pb_out | pa_out;
+   //----------------------------------------------------------------------------------
+   // data_out multiplexer
+   //----------------------------------------------------------------------------------
+   assign data_out = icr_out | tmra_out | tmrb_out | tmrd_out | sdr_out | pb_out | pa_out;
 
-//----------------------------------------------------------------------------------
-// instantiate keyboard module
-//----------------------------------------------------------------------------------
-wire  keystrobe;
-wire  keyack;
-wire  [7:0] keydat;
-reg    [7:0] sdr_latch;
+   //----------------------------------------------------------------------------------
+   // instantiate keyboard module
+   //----------------------------------------------------------------------------------
+   wire          keystrobe;
+   wire          keyack;
+   wire [7:0]    keydat;
+   reg [7:0]     sdr_latch;
 
+   wire          freeze_out;
 
-`ifdef MINIMIG_PS2_KEYBOARD
+   ciaa_ps2keyboard  kbd1
+     (
+      .clk       (clk),
+      .clk7_en   (clk7_en),
+      .reset     (reset),
+      .ps2kdat   (kbddat),
+      .ps2kclk   (kbdclk),
+      .leda      (~porta_out[1]),  // keyboard joystick LED - num lock
+      .ledb      (disk_led),       // disk activity LED - scroll lock
+      .aflock    (aflock),
+      .kbdrst    (kbdrst),
+      .keydat    (keydat[7:0]),
+      .keystrobe (keystrobe),
+      .keyack    (keyack),
+      .osd_ctrl  (osd_ctrl),
+      .freeze    (freeze_out),
+      .mou_emu   (mou_emu),
+      .joy_emu   (joy_emu)
+      );
 
-wire freeze_out;
+   assign freeze = hrtmon_en && freeze_out;
 
-ciaa_ps2keyboard  kbd1
-(
-  .clk(clk),
-  .clk7_en(clk7_en),
-  .reset(reset),
-  .ps2kdat(kbddat),
-  .ps2kclk(kbdclk),
-  .leda(~porta_out[1]),  // keyboard joystick LED - num lock
-  .ledb(disk_led),    // disk activity LED - scroll lock
-  .aflock(aflock),
-  .kbdrst(kbdrst),
-  .keydat(keydat[7:0]),
-  .keystrobe(keystrobe),
-  .keyack(keyack),
-  .osd_ctrl(osd_ctrl),
-  ._lmb(_lmb),
-  ._rmb(_rmb),
-  ._joy2(_joy2),
-  .freeze(freeze_out),
-  .mou_emu(mou_emu),
-  .joy_emu(joy_emu)
-);
+   // sdr register
+   // !!! Amiga receives keycode ONE STEP ROTATED TO THE RIGHT AND INVERTED !!!
+   always @(posedge clk)
+     if (clk7_en) begin
+        if (reset)
+          sdr_latch[7:0] <= 8'h00;
+        else if (keystrobe & ~key_disable)
+          sdr_latch[7:0] <= ~{keydat[6:0],keydat[7]};
+        else if (wr & sdr)
+          sdr_latch[7:0] <= data_in[7:0];
+     end
 
-assign freeze = hrtmon_en && freeze_out;
+   // sdr register read
+   assign sdr_out = (!wr && sdr) ? sdr_latch[7:0] : 8'h00;
+   // keyboard acknowledge
+   assign keyack = (!wr && sdr) ? 1'b1 : 1'b0;
 
-// sdr register
-// !!! Amiga receives keycode ONE STEP ROTATED TO THE RIGHT AND INVERTED !!!
-always @(posedge clk)
-  if (clk7_en) begin
-    if (reset)
-      sdr_latch[7:0] <= 8'h00;
-    else if (keystrobe & ~keyboard_disabled)
-      sdr_latch[7:0] <= ~{keydat[6:0],keydat[7]};
-    else if (wr & sdr)
-      sdr_latch[7:0] <= data_in[7:0];
-  end
+   // serial port transmision in progress
+   always @(posedge clk)
+     if (clk7_en) begin
+        if (reset || !spmode) // reset or not in output mode
+          ser_tx_run <= 0;
+        else if (sdr && wr) // write to serial port data register when serial port is in output mode
+          ser_tx_run <= 1;
+        else if (ser_tx_irq) // last bit has been transmitted
+          ser_tx_run <= 0;
+     end
 
-`else
+   // serial port transmitted bits counter
+   always @(posedge clk)
+     if (clk7_en) begin
+        if (!ser_tx_run)
+          ser_tx_cnt <= 4'd0;
+        else if (tmra_ovf) // bits are transmitted when tmra overflows
+          ser_tx_cnt <= ser_tx_cnt + 4'd1;
+     end
 
-//`define NEW_KEYB
-`ifdef NEW_KEYB
-// MiST keyboard
-reg  [ 2:0] kms_level_sync;
-wire        kms;
-reg  [ 7:0] kmd_sync[0:1];
-wire [ 7:0] kmd;
-reg  [ 1:0] kmt_sync[0:1];
-wire [ 1:0] kmt;
-reg  [ 7:0] osd_ctrl_reg;
-reg         freeze_reg=0;
+   assign ser_tx_irq = &ser_tx_cnt & tmra_ovf; // signal irq when ser_tx_cnt overflows
 
-// sync kms_level to clk28
-always @ (posedge clk) begin
-  if (clk7_en) begin
-    kms_level_sync <= #1 {kms_level_sync[1:0], kms_level};
-  end
-end
+   //----------------------------------------------------------------------------------
+   // porta
+   //----------------------------------------------------------------------------------
+   reg [7:2] porta_in2;
+   reg [3:0] regporta;
+   reg [7:0] ddrporta;
 
-//recreate kbd_mouse strobe in clk28 domain
-assign kms = kms_level_sync[2] ^ kms_level_sync[1];
+   // synchronizing of input data
+   always @(posedge clk)
+     if (clk7_en) begin
+        porta_in2[7:2] <= porta_in[7:2];
+     end
 
-// synced data
-assign kmt = kmt_sync[1];
-assign kmd = kmd_sync[1];
+   // writing of output port
+   always @(posedge clk)
+     if (clk7_en) begin
+        if (reset)
+          regporta[3:0] <= 4'd0;
+        else if (wr && pra)
+          regporta[3:0] <= {data_in[7:6], data_in[1:0]};
+     end
 
-// sync kbd_mouse_data to clk28
-always @ (posedge clk) begin
-  if (clk7_en) begin
-    kmd_sync[0] <= #1 kbd_mouse_data;
-    kmd_sync[1] <= #1 kmd_sync[0];
-    kmt_sync[0] <= #1 kbd_mouse_type;
-    kmt_sync[1] <= #1 kmt_sync[0];
-  end
-end
+   // writing of ddr register
+   always @(posedge clk)
+     if (clk7_en) begin
+        if (reset)
+          ddrporta[7:0] <= 8'd0;
+        else if (wr && ddra)
+          ddrporta[7:0] <= data_in[7:0];
+     end
 
-// sdr register
-// !!! Amiga receives keycode ONE STEP ROTATED TO THE RIGHT AND INVERTED !!!
-always @ (posedge clk) begin
-  if (clk7_en) begin
-    if (reset) begin
-      sdr_latch[7:0] <= 8'h00;
-      freeze_reg <= #1 1'b0;
-    end else if (kms && (kmt == 2) && ~keyboard_disabled) begin
-      sdr_latch[7:0] <= ~{kmd[6:0],kmd[7]};
-      if (hrtmon_en && (kmd == 8'h5f)) freeze_reg <= #1 1'b1;
-      else freeze_reg <= #1 1'b0;
-    end else if (wr & sdr) begin
-        sdr_latch[7:0] <= data_in[7:0];
-    end
-  end
-end
+   // reading of port/ddr register
+   always @(*) begin
+      if (!wr && pra)
+        pa_out[7:0] = {porta_in2[7:2],porta_out[1:0]};
+      else if (!wr && ddra)
+        pa_out[7:0] = ddrporta[7:0];
+      else
+        pa_out[7:0] = 8'h00;
+   end
 
-always @ (posedge clk) begin
-  if (clk7_en) begin
-    if (reset)
-      osd_ctrl_reg[7:0] <= 8'd0;
-    else if (kms && ((kmt == 2) || (kmt == 3)))
-      osd_ctrl_reg[7:0] <= kbd_mouse_data;
-  end
-end
+   // assignment of output port while keeping in mind that the original 8520 uses pull-ups
+   assign porta_out[3:0] = {(~ddrporta[7:6] | regporta[3:2]), (~ddrporta[1:0] | regporta[1:0])};
 
-assign kbdrst = 1'b0;
-assign _lmb = 1'b1;
-assign _rmb = 1'b1;
-assign _joy2 = 6'b11_1111;
-assign joy_emu = 6'b11_1111;
-assign mou_emu = 6'b11_1111;
-assign freeze = freeze_reg;
-assign aflock = 1'b0;
-assign keystrobe = kms && ((kmt == 2));
-assign osd_ctrl = osd_ctrl_reg;
+   //----------------------------------------------------------------------------------
+   // portb
+   //----------------------------------------------------------------------------------
+   reg [7:0] regportb;
+   reg [7:0] ddrportb;
 
-`else
-assign kbdrst = 1'b0;
-assign _lmb = 1'b1;
-assign _rmb = 1'b1;
-assign _joy2 = 6'b11_1111;
-assign joy_emu = 6'b11_1111;
-assign mou_emu = 6'b11_1111;
-reg freeze_reg=0;
-assign freeze = freeze_reg;
-assign aflock = 1'b0;
+   // writing of output port
+   always @(posedge clk)
+     if (clk7_en) begin
+        if (reset)
+          regportb[7:0] <= 8'd0;
+        else if (wr && prb)
+          regportb[7:0] <= (data_in[7:0]);
+     end
 
-reg [7:0] osd_ctrl_reg;
+   // writing of ddr register
+   always @(posedge clk)
+     if (clk7_en) begin
+        if (reset)
+          ddrportb[7:0] <= 8'd0;
+        else if (wr && ddrb)
+          ddrportb[7:0] <= (data_in[7:0]);
+     end
 
-reg keystrobe_reg;
-assign keystrobe = keystrobe_reg && ((kbd_mouse_type == 2) || (kbd_mouse_type == 3));
+   // reading of port/ddr register
+   always @(*) begin
+      if (!wr && prb)
+        pb_out[7:0] = (portb_out[7:0]);
+      else if (!wr && ddrb)
+        pb_out[7:0] = (ddrportb[7:0]);
+      else
+        pb_out[7:0] = 8'h00;
+   end
 
-assign osd_ctrl = osd_ctrl_reg;
+   // assignment of output port while keeping in mind that the original 8520 uses pull-ups
+   assign portb_out[7:0] = ((~ddrportb[7:0]) | (regportb[7:0]));
 
-// generate a keystrobe which is valid exactly one clk cycle
-reg kbd_mouse_strobeD, kbd_mouse_strobeD2;
-always @(posedge clk)
-  if (clk7_en) begin
-    kbd_mouse_strobeD <= kbd_mouse_strobe;
-  end
+   // delayed tick signal for edge detection
+   always @(posedge clk)
+     if (clk7_en) begin
+        tick_del <= tick;
+     end
 
-always @(posedge clk) begin
-  if (clk7n_en) begin
-    kbd_mouse_strobeD2 <= kbd_mouse_strobeD;
-    keystrobe_reg <= kbd_mouse_strobeD && !kbd_mouse_strobeD2;
-  end
-end
+   //----------------------------------------------------------------------------------
+   // instantiate cia interrupt controller
+   //----------------------------------------------------------------------------------
+   cia_int cnt
+     (
+      .clk      (clk),
+      .clk7_en  (clk7_en),
+      .wr       (wr),
+      .reset    (reset),
+      .icrs     (icrs),
+      .ta       (ta),
+      .tb       (tb),
+      .alrm     (alrm),
+      .flag     (1'b0),
+      .ser      (keystrobe & ~key_disable | ser_tx_irq),
+      .data_in  (data_in),
+      .data_out (icr_out),
+      .irq      (irq)
+      );
 
-// sdr register
-// !!! Amiga receives keycode ONE STEP ROTATED TO THE RIGHT AND INVERTED !!!
-always @(posedge clk) begin
-  if (clk7_en) begin
-    if (reset) begin
-      sdr_latch[7:0] <= 8'h00;
-      osd_ctrl_reg[7:0] <= 8'd0;
-      freeze_reg <= #1 1'b0;
-     end else begin
-      if (keystrobe && (kbd_mouse_type == 2) && ~keyboard_disabled) begin
-        sdr_latch[7:0] <= ~{kbd_mouse_data[6:0],kbd_mouse_data[7]};
-        if (hrtmon_en && (kbd_mouse_data == 8'h5f)) freeze_reg <= #1 1'b1;
-        else freeze_reg <= #1 1'b0;
-      end else if (wr & sdr)
-        sdr_latch[7:0] <= data_in[7:0];
+   //----------------------------------------------------------------------------------
+   // instantiate timer A
+   //----------------------------------------------------------------------------------
+   cia_timera tmra
+     (
+      .clk      (clk),
+      .clk7_en  (clk7_en),
+      .wr       (wr),
+      .reset    (reset),
+      .tlo      (talo),
+      .thi      (tahi),
+      .tcr      (cra),
+      .data_in  (data_in),
+      .data_out (tmra_out),
+      .eclk     (eclk),
+      .spmode   (spmode),
+      .tmra_ovf (tmra_ovf),
+      .irq      (ta)
+      );
 
-      if(keystrobe && ((kbd_mouse_type == 2) || (kbd_mouse_type == 3)))
-        osd_ctrl_reg[7:0] <= kbd_mouse_data;
-    end
-  end
-end
+   //----------------------------------------------------------------------------------
+   // instantiate timer B
+   //----------------------------------------------------------------------------------
+   cia_timerb tmrb
+     (
+      .clk      (clk),
+      .clk7_en  (clk7_en),
+      .wr       (wr),
+      .reset    (reset),
+      .tlo      (tblo),
+      .thi      (tbhi),
+      .tcr      (crb),
+      .data_in  (data_in),
+      .data_out (tmrb_out),
+      .eclk     (eclk),
+      .tmra_ovf (tmra_ovf),
+      .irq      (tb)
+      );
 
-`endif
-
-`endif
-
-
-// sdr register read
-assign sdr_out = (!wr && sdr) ? sdr_latch[7:0] : 8'h00;
-// keyboard acknowledge
-assign keyack = (!wr && sdr) ? 1'b1 : 1'b0;
-
-// serial port transmision in progress
-always @(posedge clk)
-  if (clk7_en) begin
-    if (reset || !spmode) // reset or not in output mode
-      ser_tx_run <= 0;
-    else if (sdr && wr) // write to serial port data register when serial port is in output mode
-      ser_tx_run <= 1;
-    else if (ser_tx_irq) // last bit has been transmitted
-      ser_tx_run <= 0;
-  end
-
-// serial port transmitted bits counter
-always @(posedge clk)
-  if (clk7_en) begin
-    if (!ser_tx_run)
-      ser_tx_cnt <= 4'd0;
-    else if (tmra_ovf) // bits are transmitted when tmra overflows
-      ser_tx_cnt <= ser_tx_cnt + 4'd1;
-  end
-
-assign ser_tx_irq = &ser_tx_cnt & tmra_ovf; // signal irq when ser_tx_cnt overflows
-
-//----------------------------------------------------------------------------------
-// porta
-//----------------------------------------------------------------------------------
-reg [7:2] porta_in2;
-reg [3:0] regporta;
-reg [7:0] ddrporta;
-
-// synchronizing of input data
-always @(posedge clk)
-  if (clk7_en) begin
-    porta_in2[7:2] <= porta_in[7:2];
-  end
-
-// writing of output port
-always @(posedge clk)
-  if (clk7_en) begin
-    if (reset)
-      regporta[3:0] <= 4'd0;
-    else if (wr && pra)
-      regporta[3:0] <= {data_in[7:6], data_in[1:0]};
-  end
-
-// writing of ddr register
-always @(posedge clk)
-  if (clk7_en) begin
-    if (reset)
-      ddrporta[7:0] <= 8'd0;
-    else if (wr && ddra)
-       ddrporta[7:0] <= data_in[7:0];
-  end
-
-// reading of port/ddr register
-always @(*)
-begin
-  if (!wr && pra)
-    pa_out[7:0] = {porta_in2[7:2],porta_out[1:0]};
-  else if (!wr && ddra)
-    pa_out[7:0] = ddrporta[7:0];
-  else
-    pa_out[7:0] = 8'h00;
-end
-
-// assignment of output port while keeping in mind that the original 8520 uses pull-ups
-assign porta_out[3:0] = {(~ddrporta[7:6] | regporta[3:2]), (~ddrporta[1:0] | regporta[1:0])};
-
-//----------------------------------------------------------------------------------
-// portb
-//----------------------------------------------------------------------------------
-reg [7:0] regportb;
-reg [7:0] ddrportb;
-
-// writing of output port
-always @(posedge clk)
-  if (clk7_en) begin
-    if (reset)
-      regportb[7:0] <= 8'd0;
-    else if (wr && prb)
-      regportb[7:0] <= (data_in[7:0]);
-  end
-
-// writing of ddr register
-always @(posedge clk)
-  if (clk7_en) begin
-    if (reset)
-      ddrportb[7:0] <= 8'd0;
-    else if (wr && ddrb)
-      ddrportb[7:0] <= (data_in[7:0]);
-  end
-
-// reading of port/ddr register
-always @(*)
-begin
-  if (!wr && prb)
-    pb_out[7:0] = (portb_out[7:0]);
-  else if (!wr && ddrb)
-    pb_out[7:0] = (ddrportb[7:0]);
-  else
-    pb_out[7:0] = 8'h00;
-end
-
-// assignment of output port while keeping in mind that the original 8520 uses pull-ups
-assign portb_out[7:0] = ((~ddrportb[7:0]) | (regportb[7:0]));
-
-// delayed tick signal for edge detection
-always @(posedge clk)
-  if (clk7_en) begin
-    tick_del <= tick;
-  end
-
-//----------------------------------------------------------------------------------
-// instantiate cia interrupt controller
-//----------------------------------------------------------------------------------
-cia_int cnt
-(
-  .clk(clk),
-  .clk7_en(clk7_en),
-  .wr(wr),
-  .reset(reset),
-  .icrs(icrs),
-  .ta(ta),
-  .tb(tb),
-  .alrm(alrm),
-  .flag(1'b0),
-  .ser(keystrobe & ~keyboard_disabled | ser_tx_irq),
-  .data_in(data_in),
-  .data_out(icr_out),
-  .irq(irq)
-);
-
-//----------------------------------------------------------------------------------
-// instantiate timer A
-//----------------------------------------------------------------------------------
-cia_timera tmra
-(
-  .clk(clk),
-  .clk7_en(clk7_en),
-  .wr(wr),
-  .reset(reset),
-  .tlo(talo),
-  .thi(tahi),
-  .tcr(cra),
-  .data_in(data_in),
-  .data_out(tmra_out),
-  .eclk(eclk),
-  .spmode(spmode),
-  .tmra_ovf(tmra_ovf),
-  .irq(ta)
-);
-
-//----------------------------------------------------------------------------------
-// instantiate timer B
-//----------------------------------------------------------------------------------
-cia_timerb tmrb
-(
-  .clk(clk),
-  .clk7_en(clk7_en),
-  .wr(wr),
-  .reset(reset),
-  .tlo(tblo),
-  .thi(tbhi),
-  .tcr(crb),
-  .data_in(data_in),
-  .data_out(tmrb_out),
-  .eclk(eclk),
-  .tmra_ovf(tmra_ovf),
-  .irq(tb)
-);
-
-//----------------------------------------------------------------------------------
-// instantiate timer D
-//----------------------------------------------------------------------------------
-cia_timerd tmrd
-(
-  .clk(clk),
-  .clk7_en(clk7_en),
-  .wr(wr),
-  .reset(reset),
-  .tlo(tdlo),
-  .tme(tdme),
-  .thi(tdhi),
-  .tcr(crb),
-  .data_in(data_in),
-  .data_out(tmrd_out),
-  .count(tick & ~tick_del),
-  .irq(alrm)
-);
-
+   //----------------------------------------------------------------------------------
+   // instantiate timer D
+   //----------------------------------------------------------------------------------
+   cia_timerd tmrd
+     (
+      .clk      (clk),
+      .clk7_en  (clk7_en),
+      .wr       (wr),
+      .reset    (reset),
+      .tlo      (tdlo),
+      .tme      (tdme),
+      .thi      (tdhi),
+      .tcr      (crb),
+      .data_in  (data_in),
+      .data_out (tmrd_out),
+      .count    (tick & ~tick_del),
+      .irq      (alrm)
+      );
 
 endmodule
 

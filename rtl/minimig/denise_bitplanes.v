@@ -56,22 +56,22 @@ parameter FMODE   = 9'h1fc;
 //local signals
 reg   [15:0] bplcon1;    // bplcon1 register
 reg   [15:0] fmode;     // fmod reg
-reg    [63:0] bpl1dat;    // buffer register for bit plane 2
-reg    [63:0] bpl2dat;    // buffer register for bit plane 2
-reg    [63:0] bpl3dat;    // buffer register for bit plane 3
-reg    [63:0] bpl4dat;    // buffer register for bit plane 4
-reg    [63:0] bpl5dat;    // buffer register for bit plane 5
-reg    [63:0] bpl6dat;    // buffer register for bit plane 6
-reg    [63:0] bpl7dat;    // buffer register for bit plane 5
-reg    [63:0] bpl8dat;    // buffer register for bit plane 6
+reg    [63:0] bpl1dat=64'h0;    // buffer register for bit plane 2
+reg    [63:0] bpl2dat=64'h0;    // buffer register for bit plane 2
+reg    [63:0] bpl3dat=64'h0;    // buffer register for bit plane 3
+reg    [63:0] bpl4dat=64'h0;    // buffer register for bit plane 4
+reg    [63:0] bpl5dat=64'h0;    // buffer register for bit plane 5
+reg    [63:0] bpl6dat=64'h0;    // buffer register for bit plane 6
+reg    [63:0] bpl7dat=64'h0;    // buffer register for bit plane 5
+reg    [63:0] bpl8dat=64'h0;    // buffer register for bit plane 6
 reg    load;        // bpl1dat written => load shif registers
 
 reg    [7:0] extra_delay_f0;  // extra delay when not alligned ddfstart
 reg    [7:0] extra_delay_f12;
 reg    [7:0] extra_delay_f3;
-reg    [7:0] extra_delay_r;
-reg    [7:0] pf1h;      // playfield 1 horizontal scroll
-reg    [7:0] pf2h;      // playfield 2 horizontal scroll
+reg    [7:0] extra_delay_r=8'h00;
+reg    [7:0] pf1h=8'h0;      // playfield 1 horizontal scroll
+reg    [7:0] pf2h=8'h0;      // playfield 2 horizontal scroll
 reg    [7:0] pf1h_del;    // delayed playfield 1 horizontal scroll
 reg    [7:0] pf2h_del;    // delayed playfield 2 horizontal scroll
 

@@ -44,17 +44,27 @@ set_false_path -from {ctrl_top_nosram:ctrl_top|ctrl_regs:ctrl_regs|spi_cs_n[*]}
 #set_multicycle_path -to [get_fanouts [get_pins {amiga_clk|clk7n_en_reg|q*}] -through [get_pins -hierarchical *|*ena*]] -setup -end 4
 #set_multicycle_path -to [get_fanouts [get_pins {amiga_clk|clk7n_en_reg|q*}] -through [get_pins -hierarchical *|*ena*]] -hold  -end 3
 
-# Chip/Sys, Clk7/Sys
-set_multicycle_path -from $clk_chip -to $clk_sys  -setup -end   2
-set_multicycle_path -from $clk_chip -to $clk_sys  -hold  -end   2
-set_multicycle_path -from clk_7     -to $clk_sys  -setup -end   2
-set_multicycle_path -from clk_7     -to $clk_sys  -hold  -end   2
+# Clk7/Sys
+set_multicycle_path -from clk_7     -to $clk_sys  -setup -end   3
+set_multicycle_path -from clk_7     -to $clk_sys  -hold  -end   3
 
 # SPI/Chip
 set_multicycle_path -from $clk_chip -to spi_clk   -setup -start 2
 set_multicycle_path -from $clk_chip -to spi_clk   -hold  -start 2
 set_multicycle_path -from spi_clk   -to $clk_chip -setup -end   2
 set_multicycle_path -from spi_clk   -to $clk_chip -hold  -end   2
+
+# SPI/Sys
+set_multicycle_path -from $clk_sys  -to spi_clk   -setup -start 3
+set_multicycle_path -from $clk_sys  -to spi_clk   -hold  -start 2
+set_multicycle_path -from spi_clk   -to $clk_sys  -setup -end   3
+set_multicycle_path -from spi_clk   -to $clk_sys  -hold  -end   2
+
+# Chip/Sys
+set_multicycle_path -from $clk_sys  -to $clk_chip -setup -start 3
+set_multicycle_path -from $clk_sys  -to $clk_chip -hold  -start 3
+set_multicycle_path -from $clk_chip -to $clk_sys  -setup -end   3
+set_multicycle_path -from $clk_chip -to $clk_sys  -hold  -end   3
 
 # Ctrl/Sys
 set_multicycle_path -from $clk_ctrl -to $clk_sys  -setup -end 2

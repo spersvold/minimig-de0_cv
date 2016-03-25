@@ -415,7 +415,7 @@ begin
   -- bftst, bfset, bfclr and bfchg
   --------------------------------
   -- bftst, bfset, bfclr and bfchg work very similar. A "sign" vector is generated
-  -- having "width" right aligned 0-bits and the rest ones. 
+  -- having "width" right aligned 0-bits and the rest ones.
   -- A "copy" vector is generated from this by shifting through copymux so
   -- this contains a 1 for all bits in bf_ext_in & op1out that will not be
   -- affected by the operation.
@@ -451,9 +451,9 @@ begin
   --------
   -- bfffo uses the same data path as bfext. But instead of directly returning
   -- the extracted data it determines the highest bit setin the result
-  
+
   process (clk, bf_ins, bf_bchg, bf_bset, bf_exts, bf_extu, bf_set2, OP1out, OP2out, result_tmp, bf_ext_in,
-           datareg, bf_NFlag, result, reg_QB, sign, bf_d32, copy, bf_loffset, bf_width)
+           datareg, bf_NFlag, result, reg_QB, sign, bf_d32, copy, bf_loffset, bf_width, bf_loff_dir, exe_opcode)
   begin
 	if rising_edge(clk) then
 	  if clkena_lw = '1' then
@@ -490,11 +490,11 @@ begin
         else
           bf_loff_dir <= bf_loffset;
         end if;
-        
+
         if bf_d32 = '1' then
-          -- 32bit: rotate 0..31 bits left or right, don't care for upper 8 bits 
+          -- 32bit: rotate 0..31 bits left or right, don't care for upper 8 bits
           bf_set2 <= "--------" & std_logic_vector(unsigned(OP2out) ror to_integer(unsigned(bf_loff_dir)));
-        else 
+        else
           if bf_ins = '1' then
             -- 40 bit: shift 0..7 bits left
             bf_set2 <= std_logic_vector(unsigned(bf_ext_in & OP2out) sll to_integer(unsigned(bf_loffset(2 downto 0))));
@@ -503,16 +503,16 @@ begin
             bf_set2 <= std_logic_vector(unsigned(bf_ext_in & OP2out) srl to_integer(unsigned(bf_loffset(2 downto 0))));
           end if;
         end if;
-          
+
         ------------- COPY --------------
         if bf_d32 = '1' then
-          -- 32bit: rotate 32 bits 0..31 bits left, don't care for upper 8 bits 
+          -- 32bit: rotate 32 bits 0..31 bits left, don't care for upper 8 bits
           copy <= "--------" & std_logic_vector(unsigned(sign) rol to_integer(unsigned(bf_loffset)));
         else
           -- 40 bit: shift 40 bits 0..7 bits left, fill with '1's (hence the two not's)
           copy <= not std_logic_vector(unsigned(x"00" & (not sign)) sll to_integer(unsigned(bf_loffset(2 downto 0))));
         end if;
-          
+
 	if bf_ins = '1' then
 	  datareg <= reg_QB;
 	else
@@ -547,7 +547,7 @@ begin
         else
            result_tmp(39 downto 32) <= bf_ext_in;
         end if;
-          
+
         bf_flag_z <= '1';
         if bf_d32 = '0' then
           -- The test for this overflow shouldn't be needed. But GHDL complains
@@ -574,7 +574,7 @@ begin
 	else
 	  bf_datareg <= datareg;
 	end if;
-        
+
 	--BFFFO
         if    datareg(31) = '1' then bf_firstbit <= "100000";
         elsif datareg(30) = '1' then bf_firstbit <= "011111";

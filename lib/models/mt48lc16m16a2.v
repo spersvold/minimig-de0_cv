@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-*    File Name:  MT48LC16M16A2.V  
+*    File Name:  MT48LC16M16A2.V
 *      Version:  2.1
 *         Date:  June 6th, 2002
 *        Model:  BUS Functional
@@ -19,8 +19,8 @@
 *         Note:  - Set simulator resolution to "ps" accuracy
 *                - Set Debug = 0 to disable $display messages
 *
-*   Disclaimer:  THESE DESIGNS ARE PROVIDED "AS IS" WITH NO WARRANTY 
-*                WHATSOEVER AND MICRON SPECIFICALLY DISCLAIMS ANY 
+*   Disclaimer:  THESE DESIGNS ARE PROVIDED "AS IS" WITH NO WARRANTY
+*                WHATSOEVER AND MICRON SPECIFICALLY DISCLAIMS ANY
 *                IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
 *                A PARTICULAR PURPOSE, OR AGAINST INFRINGEMENT.
 *
@@ -42,9 +42,9 @@
 
 // Uncomment one of the following to have the appropriate size definitions
 // for the part.
-//`define MT48LC32M16   // 64MB part
+`define MT48LC32M16   // 64MB part
 //`define MT48LC16M16   // 32MB part
-`define MT48LC4M16    //  8MB part
+//`define MT48LC4M16    //  8MB part
 
 module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
@@ -62,14 +62,14 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
    parameter col_bits  =       9;
    parameter mem_sizes = 4194304;
 `endif
-   
-`ifdef MT48LC4M16    
+
+`ifdef MT48LC4M16
    //Params for mt48lc4m16a2 (8MB part)
    parameter addr_bits =      12;
    parameter col_bits  =       8;
    parameter mem_sizes =   1048576;
 `endif
-   
+
    // Common to all parts
    parameter data_bits =      16;
 
@@ -83,7 +83,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
    input                         Cas_n;
    input                         We_n;
    input [1 : 0] 		 Dqm;
-   
+
    reg [data_bits - 1 : 0] 	 Bank0 [0 : mem_sizes];
    reg [data_bits - 1 : 0] 	 Bank1 [0 : mem_sizes];
    reg [data_bits - 1 : 0] 	 Bank2 [0 : mem_sizes];
@@ -146,9 +146,9 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     // Write Burst Mode
     wire      Write_burst_mode = Mode_reg[9];
 
-    wire      Debug            = 1'b1;                          // Debug messages : 1 = On
+    wire      Debug            = 1'b0;                          // Debug messages : 1 = On
     wire      Dq_chk           = Sys_clk & Data_in_enable;      // Check setup/hold time for DQ
-    
+
     assign    Dq               = Dq_reg;                        // DQ buffer
 
     // Commands Operation
@@ -185,7 +185,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     time  RP_chk0, RP_chk1, RP_chk2, RP_chk3;
 
    integer mem_cnt;
-   
+
 
     initial begin
         Dq_reg = {data_bits{1'bz}};
@@ -201,7 +201,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         RC_chk0 = 0; RC_chk1 = 0; RC_chk2 = 0; RC_chk3 = 0;
         RP_chk0 = 0; RP_chk1 = 0; RP_chk2 = 0; RP_chk3 = 0;
         $timeformat (-9, 1, " ns", 12);
-//`define INIT_CLEAR_MEM_BANKS       
+//`define INIT_CLEAR_MEM_BANKS
 `ifdef INIT_CLEAR_MEM_BANKS // Added, jb
        // Initialse the memory before we use it, clearing x's
        for(mem_cnt = 0; mem_cnt < mem_sizes; mem_cnt = mem_cnt + 1)
@@ -330,7 +330,7 @@ end
             // Record Current tRFC time
             RFC_chk = $time;
         end
-        
+
         // Load Mode Register
         if (Mode_reg_enable === 1'b1) begin
             // Register Mode
@@ -399,7 +399,7 @@ end
             // Reset MRD Counter
             MRD_chk = 0;
         end
-        
+
         // Active Block (Latch Bank Address and Row Address)
         if (Active_enable === 1'b1) begin
             // Activate an open bank can corrupt data
@@ -528,7 +528,7 @@ end
             RRD_chk = $time;
             Prev_bank = Ba;
         end
-        
+
         // Precharge Block
         if (Prech_enable == 1'b1) begin
             // Load Mode Register to Precharge
@@ -620,7 +620,7 @@ end
                 A10_precharge[1] = Addr[10];
             end
         end
-        
+
         // Burst terminate
         if (Burst_term === 1'b1) begin
             // Terminate a Write Immediately
@@ -640,7 +640,7 @@ end
                 $display ("%m : at time %t BST  : Burst Terminate",$time);
             end
         end
-        
+
         // Read, Write, Column Latch
         if (Read_enable === 1'b1) begin
             // Check to see if bank is open (ACT)
@@ -732,7 +732,7 @@ end
             // Write interrupt Read (terminate Read immediately)
             if (Data_out_enable == 1'b1) begin
                 Data_out_enable = 1'b0;
-                
+
                 // Interrupting a Read with Autoprecharge
                 if (Auto_precharge[RW_interrupt_bank] == 1'b1 && Read_precharge[RW_interrupt_bank] == 1'b1) begin
                     RW_interrupt_read[RW_interrupt_bank] = 1'b1;
@@ -861,7 +861,7 @@ end
         end
         if ((Auto_precharge[1] == 1'b1) && (Read_precharge[1] == 1'b1)) begin
             if ((($time - RAS_chk1 >= tRAS) &&
-                ((Burst_length_1 == 1'b1 && Count_precharge[1] >= 1) || 
+                ((Burst_length_1 == 1'b1 && Count_precharge[1] >= 1) ||
                  (Burst_length_2 == 1'b1 && Count_precharge[1] >= 2) ||
                  (Burst_length_4 == 1'b1 && Count_precharge[1] >= 4) ||
                  (Burst_length_8 == 1'b1 && Count_precharge[1] >= 8))) ||
@@ -879,7 +879,7 @@ end
         end
         if ((Auto_precharge[2] == 1'b1) && (Read_precharge[2] == 1'b1)) begin
             if ((($time - RAS_chk2 >= tRAS) &&
-                ((Burst_length_1 == 1'b1 && Count_precharge[2] >= 1) || 
+                ((Burst_length_1 == 1'b1 && Count_precharge[2] >= 1) ||
                  (Burst_length_2 == 1'b1 && Count_precharge[2] >= 2) ||
                  (Burst_length_4 == 1'b1 && Count_precharge[2] >= 4) ||
                  (Burst_length_8 == 1'b1 && Count_precharge[2] >= 8))) ||
@@ -897,7 +897,7 @@ end
         end
         if ((Auto_precharge[3] == 1'b1) && (Read_precharge[3] == 1'b1)) begin
             if ((($time - RAS_chk3 >= tRAS) &&
-                ((Burst_length_1 == 1'b1 && Count_precharge[3] >= 1) || 
+                ((Burst_length_1 == 1'b1 && Count_precharge[3] >= 1) ||
                  (Burst_length_2 == 1'b1 && Count_precharge[3] >= 2) ||
                  (Burst_length_4 == 1'b1 && Count_precharge[3] >= 4) ||
                  (Burst_length_8 == 1'b1 && Count_precharge[3] >= 8))) ||
@@ -1064,7 +1064,7 @@ end
                 Col = Col_temp;
             end
 
-            // Burst Read Single Write            
+            // Burst Read Single Write
             if (Write_burst_mode == 1'b1) begin
                 Data_in_enable = 1'b0;
             end
@@ -1128,10 +1128,10 @@ end
       output [7:0] data;
       reg [1:0]	   bank;
       reg [15:0]   short;
-      
+
       begin
 	 bank = addr[24:23];
-	 
+
 	 case(bank)
 	   2'b00:
 	     short = Bank0[addr[22:1]];
@@ -1158,10 +1158,10 @@ end
       input [7:0] data;
       reg [1:0]	   bank;
       reg [15:0]   short;
-      
+
       begin
 	 bank = addr[24:23];
-	 
+
 	 case(bank)
 	   2'b00:
 	     short = Bank0[addr[22:1]];
@@ -1190,7 +1190,7 @@ end
 	   2'b11:
 	     Bank3[addr[22:1]] = short;
 	 endcase // case (bank)
-	 
+
       end
    endtask // set_byte
 
@@ -1199,10 +1199,10 @@ end
       output [15:0] data;
       reg [1:0]	   bank;
       reg [15:0]   short;
-      
+
       begin
 	 bank = addr[24:23];
-	 
+
 	 case(bank)
 	   2'b00:
 	     short = Bank0[addr[22:1]];
@@ -1217,14 +1217,14 @@ end
 	 data = short;
       end
    endtask // get_short
-   
+
    task set_short;
       input [31:0] addr;
       input [15:0] data;
       reg [1:0]	   bank;
       begin
 	 bank = addr[24:23];
-	 
+
 	 // Write short back to memory
 	 case(bank)
 	   2'b00:
@@ -1238,5 +1238,5 @@ end
 	 endcase // case (bank)
       end
    endtask // set_short
-   
+
 endmodule

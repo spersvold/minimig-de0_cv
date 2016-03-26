@@ -73,6 +73,13 @@ void SendFile(RAFile* file, unsigned char* key, int keysize, int address, int si
             }
         }
         adr = address + i*512;
+#ifndef USE_OLD_OSD_UPLOAD
+        for (j=0; j<512; j=j+4)
+        {
+            unsigned int data = ((unsigned int*)sector_buffer)[j>>2];
+            write32(adr+j, data);
+        }
+#else
         MEM_UPLOAD_INIT(adr);
         for (j=0; j<512; j=j+2)
         {
@@ -80,6 +87,7 @@ void SendFile(RAFile* file, unsigned char* key, int keysize, int address, int si
             MEM_WRITE16(data);
         }
         MEM_UPLOAD_FINI();
+#endif
     }
     printf("]\r");
 }

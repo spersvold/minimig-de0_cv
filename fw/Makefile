@@ -9,12 +9,6 @@ HEX2MIF_DIR = ../sw/hex2mif/
 ### OR32 toolchain ###
 
 # make sure or32-elf-gcc is in path, or comment next line and set path
-OR32_TOOLCHAIN_PATH=
-
-ifndef OR32_TOOLCHAIN_PATH
-OR32_TOOLCHAIN_PATH=/opt/or32-elf-1.0rc1/bin/
-endif
-
 ifndef CROSS_COMPILE
 CROSS_COMPILE = $(OR32_TOOLCHAIN_PATH)or32-elf-
 endif

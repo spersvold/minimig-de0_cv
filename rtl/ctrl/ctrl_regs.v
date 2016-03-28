@@ -227,14 +227,14 @@ assign rx_start = rxd_bit && !rxd_sync[1] && ~|rx_bit_cnt;
 // set for 115200 Baud @ 16x oversample
 always @ (posedge clk) begin
   if (rx_start || ~|rx_sample_cnt) rx_sample_cnt <= #1 RXD_CNT;
-  else if (|rx_bit_cnt) rx_sample_cnt <= rx_sample_cnt -1;
+  else if (|rx_bit_cnt) rx_sample_cnt <= rx_sample_cnt - 1'b1;
 end
 
 // oversampling counter
 // set for 16x oversampling
 always @ (posedge clk) begin
   if (rx_start) rx_oversample_cnt <= #1 4'b1111;
-  else if (~|rx_sample_cnt) rx_oversample_cnt <= #1 rx_oversample_cnt - 1;
+  else if (~|rx_sample_cnt) rx_oversample_cnt <= #1 rx_oversample_cnt - 1'b1;
 end
 
 assign rx_sample = (rx_oversample_cnt == 4'b1000) && (~|rx_sample_cnt);
@@ -244,7 +244,7 @@ always @ (posedge clk) rx_sample_d <= #1 rx_sample;
 // 8N1 format = 10bits
 always @ (posedge clk) begin
   if (rx_start) rx_bit_cnt <= #1 4'd10;
-  else if (rx_sample && |rx_bit_cnt) rx_bit_cnt <= #1 rx_bit_cnt - 1;
+  else if (rx_sample && |rx_bit_cnt) rx_bit_cnt <= #1 rx_bit_cnt - 1'b1;
 end
 
 // RX receive register

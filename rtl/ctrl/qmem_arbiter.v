@@ -32,7 +32,8 @@ module qmem_arbiter #(
 );
 
 
-wire     [3:0] ms_a;
+// this code is written for up to 8 masters
+wire     [2:0] ms_a;
 wire  [MN-1:0] ms_tmp;
 reg   [MN-1:0] ms_reg;
 
@@ -52,21 +53,21 @@ end
 
 assign ms = |ms_reg ? ms_reg : ms_tmp;
 
-generate if (MN == 1) assign ms_a =                                                         0; endgenerate
-generate if (MN == 2) assign ms_a =                                                 ms[1]?1:0; endgenerate
-generate if (MN == 3) assign ms_a =                                         ms[2]?2:ms[1]?1:0; endgenerate
-generate if (MN == 4) assign ms_a =                                 ms[3]?3:ms[2]?2:ms[1]?1:0; endgenerate
-generate if (MN == 5) assign ms_a =                         ms[4]?4:ms[3]?3:ms[2]?2:ms[1]?1:0; endgenerate
-generate if (MN == 6) assign ms_a =                 ms[5]?5:ms[4]?4:ms[3]?3:ms[2]?2:ms[1]?1:0; endgenerate
-generate if (MN == 7) assign ms_a =         ms[6]?6:ms[5]?5:ms[4]?4:ms[3]?3:ms[2]?2:ms[1]?1:0; endgenerate
-generate if (MN == 8) assign ms_a = ms[7]?7:ms[6]?6:ms[5]?5:ms[4]?4:ms[3]?3:ms[2]?2:ms[1]?1:0; endgenerate
+generate if (MN == 1) assign ms_a =                                                                              3'd0; endgenerate
+generate if (MN == 2) assign ms_a =                                                                   ms[1]?3'd1:3'd0; endgenerate
+generate if (MN == 3) assign ms_a =                                                        ms[2]?3'd2:ms[1]?3'd1:3'd0; endgenerate
+generate if (MN == 4) assign ms_a =                                             ms[3]?3'd3:ms[2]?3'd2:ms[1]?3'd1:3'd0; endgenerate
+generate if (MN == 5) assign ms_a =                                  ms[4]?3'd4:ms[3]?3'd3:ms[2]?3'd2:ms[1]?3'd1:3'd0; endgenerate
+generate if (MN == 6) assign ms_a =                       ms[5]?3'd5:ms[4]?3'd4:ms[3]?3'd3:ms[2]?3'd2:ms[1]?3'd1:3'd0; endgenerate
+generate if (MN == 7) assign ms_a =            ms[6]?3'd6:ms[5]?3'd5:ms[4]?3'd4:ms[3]?3'd3:ms[2]?3'd2:ms[1]?3'd1:3'd0; endgenerate
+generate if (MN == 8) assign ms_a = ms[7]?3'd7:ms[6]?3'd6:ms[5]?3'd5:ms[4]?3'd4:ms[3]?3'd3:ms[2]?3'd2:ms[1]?3'd1:3'd0; endgenerate
 
 // slave port for requests from masters
-assign qs_cs    = qm_cs    >>      ms_a ;
-assign qs_we    = qm_we    >>      ms_a ;
-assign qs_sel   = qm_sel   >> (QSW*ms_a);
-assign qs_adr   = qm_adr   >> (QAW*ms_a);
-assign qs_dat_w = qm_dat_w >> (QDW*ms_a);
+assign qs_cs    = qm_cs   [ms_a];
+assign qs_we    = qm_we   [ms_a];
+assign qs_sel   = qm_sel  [(QSW*ms_a)+:QSW];
+assign qs_adr   = qm_adr  [(QAW*ms_a)+:QAW];
+assign qs_dat_w = qm_dat_w[(QDW*ms_a)+:QDW];
 
 // master ports for requests to a slave
 generate for (i=0; i<MN; i=i+1) begin : loop_bus

@@ -31,19 +31,18 @@ module qmem_decoder #(
   input  wire [SN    -1:0] ss
 );
 
-
 // this code is written for up to 8 slaves
-wire [7:0] ss_a;
-reg  [7:0] ss_r;
+wire [2:0] ss_a;
+reg  [2:0] ss_r;
 
-generate if (SN == 1) assign ss_a =                                                         0; endgenerate
-generate if (SN == 2) assign ss_a =                                                 ss[1]?1:0; endgenerate
-generate if (SN == 3) assign ss_a =                                         ss[2]?2:ss[1]?1:0; endgenerate
-generate if (SN == 4) assign ss_a =                                 ss[3]?3:ss[2]?2:ss[1]?1:0; endgenerate
-generate if (SN == 5) assign ss_a =                         ss[4]?4:ss[3]?3:ss[2]?2:ss[1]?1:0; endgenerate
-generate if (SN == 6) assign ss_a =                 ss[5]?5:ss[4]?4:ss[3]?3:ss[2]?2:ss[1]?1:0; endgenerate
-generate if (SN == 7) assign ss_a =         ss[6]?6:ss[5]?5:ss[4]?4:ss[3]?3:ss[2]?2:ss[1]?1:0; endgenerate
-generate if (SN == 8) assign ss_a = ss[7]?7:ss[6]?6:ss[5]?5:ss[4]?4:ss[3]?3:ss[2]?2:ss[1]?1:0; endgenerate
+generate if (SN == 1) assign ss_a =                                                                              3'd0; endgenerate
+generate if (SN == 2) assign ss_a =                                                                   ss[1]?1'd1:3'd0; endgenerate
+generate if (SN == 3) assign ss_a =                                                        ss[2]?3'd2:ss[1]?3'd1:3'd0; endgenerate
+generate if (SN == 4) assign ss_a =                                             ss[3]?3'd3:ss[2]?3'd2:ss[1]?3'd1:3'd0; endgenerate
+generate if (SN == 5) assign ss_a =                                  ss[4]?3'd4:ss[3]?3'd3:ss[2]?3'd2:ss[1]?3'd1:3'd0; endgenerate
+generate if (SN == 6) assign ss_a =                       ss[5]?3'd5:ss[4]?3'd4:ss[3]?3'd3:ss[2]?3'd2:ss[1]?3'd1:3'd0; endgenerate
+generate if (SN == 7) assign ss_a =            ss[6]?3'd6:ss[5]?3'd5:ss[4]?3'd4:ss[3]?3'd3:ss[2]?3'd2:ss[1]?3'd1:3'd0; endgenerate
+generate if (SN == 8) assign ss_a = ss[7]?3'd7:ss[6]?3'd6:ss[5]?3'd5:ss[4]?3'd4:ss[3]?3'd3:ss[2]?3'd2:ss[1]?3'd1:3'd0; endgenerate
 
 always @ (posedge clk)
 if (qm_cs & (qm_ack | qm_err) & ~qm_we)  ss_r <= #1 ss_a;
@@ -60,9 +59,9 @@ generate for (i=0; i<SN; i=i+1) begin : loop_select
 end endgenerate
 
 // slave port for requests from masters
-assign qm_dat_r = qs_dat_r >> (QDW*ss_r);
-assign qm_ack   = qs_ack   >>      ss_a ;
-assign qm_err   = qs_err   >>      ss_a ;
+assign qm_dat_r = qs_dat_r[(QDW*ss_r)+:QDW];
+assign qm_ack   = qs_ack[ss_a];
+assign qm_err   = qs_err[ss_a];
 
 
 endmodule

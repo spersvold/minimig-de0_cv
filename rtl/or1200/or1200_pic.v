@@ -50,7 +50,7 @@ module or1200_pic(
 	// RISC Internal Interface
 	clk, rst, spr_cs, spr_write, spr_addr, spr_dat_i, spr_dat_o,
 	pic_wakeup, intr,
-	
+
 	// PIC Interface
 	pic_int
 );
@@ -187,7 +187,7 @@ assign pic_wakeup= intr;
 `ifdef OR1200_PIC_READREGS
 assign spr_dat_o[`OR1200_PIC_INTS-1:0] = `OR1200_PIC_INTS'b0;
 `ifdef OR1200_PIC_UNUSED_ZERO
-assign spr_dat_o[31:`OR1200_PIC_INTS] = 32-`OR1200_PIC_INTS'b0;
+assign spr_dat_o[31:`OR1200_PIC_INTS] = {32-`OR1200_PIC_INTS{1'b0}};
 `endif
 `endif
 

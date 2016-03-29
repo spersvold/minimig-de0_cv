@@ -56,16 +56,16 @@ module gayle_fifo
    always @(posedge clk)
      if (clk7_en) begin
         if (reset)
-          inptr <= 12'd0;
+          inptr <= 13'd0;
         else if (wr)
-          inptr <= inptr + 12'd1;
+          inptr <= inptr + 13'd1;
      end
 
    // fifo read pointer control
    always @(posedge clk)
      if (clk7_en) begin
         if (reset)
-          outptr <= 0;
+          outptr <= 13'd0;
         else if (rd)
           outptr <= outptr + 13'd1;
      end

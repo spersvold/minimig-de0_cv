@@ -1,0 +1,301 @@
+#!/bin/sh
+
+CURDIR=$(dirname "$0")
+PROJECT_ROOT=$CURDIR/../..
+
+# show program usage
+usage () {
+    echo "usage:"
+    echo "   runtest [opts] "
+    echo "opts:            any options you will give on the simulator command line,"
+    echo "                 like +define+VCD, these options will be given to both the"
+    echo "                 compilation and run stage for the two pass simulators"
+    echo ""
+    echo "sample run:"
+    echo "./runtest +define+VERBOSE"
+    echo ""
+}
+
+OPTS=${OPTS:-""}
+RUNTIMEOPTS=${OPTS:-""}
+CLEAN=${CLEAN:-0}
+
+while [ $# -gt 0 ]
+do
+    case $1 in
+        --clean)      CLEAN=1; shift;;
+        --help)       usage; exit 0;;
+        *)            OPTS="$OPTS $1"; RUNTIMEOPTS="$RUNTIMEOPTS $1"; shift;;
+    esac
+done
+
+_FILES=""
+add_file() {
+    _FILES="$_FILES $1"
+}
+
+_INCLUDES=""
+add_include() {
+    _INCLUDES="$_INCLUDES +incdir+$1"
+}
+
+_LIBDIRS=""
+add_libdir() {
+    _LIBDIRS="$_LIBDIRS -y $1"
+}
+
+_LIBFILES=""
+add_libfile() {
+    _LIBFILES="$_LIBFILES -v $1"
+}
+
+_DEFINES=""
+add_define() {
+    _DEFINES="$_DEFINES +define+$1"
+}
+
+altera_option_setup() {
+    if test x"$QUARTUS_HOME" != x
+    then
+        add_libfile "${QUARTUS_HOME}/eda/sim_lib/altera_primitives.v"
+        add_libfile "${QUARTUS_HOME}/eda/sim_lib/220model.v"
+        add_libfile "${QUARTUS_HOME}/eda/sim_lib/sgate.v"
+        add_libfile "${QUARTUS_HOME}/eda/sim_lib/altera_mf.v"
+        add_file "${QUARTUS_HOME}/eda/sim_lib/altera_lnsim.sv"
+    else
+        echo "ERROR, cannot find the Quartus II installation directory. Please specify the location"
+        echo "       using the QUARTUS_HOME environment variable"
+        exit
+    fi
+
+}
+
+runsim () {
+    _TOP=$1
+
+    _LINT_OPTS="+lint=all,noVCDE,noUI,noNS,noZERO,noMSIVD,noPORTFRC"
+    RUNTIMEOPTS="-l simv.log $RUNTIMEOPTS"
+    OPTS="-l compile.log $OPTS"
+
+    _VCS_OPTS="+v2k -timescale=1ns/1ps +plusarg_save -sverilog +libext+.v+.sv +notimingchecks -debug_all"
+
+    if test $CLEAN -eq 1
+    then
+        rm -r csrc; rm -r simv.daidir
+    fi
+    if test x"$_TOP" != x
+    then
+        _TOP="-top ${_TOP}"
+    fi
+
+    # Compile the simulation
+    $VCS_HOME/bin/vcs $_TOP $_VCS_OPTS $_LINT_OPTS $_INCLUDES $_LIBDIRS $_DEFINES $OPTS $_LIBFILES $_FILES
+    # Run the simulation
+    test -f ./simv && ./simv $RUNTIMEOPTS
+}
+
+add_define "SOC_SIM"
+add_define "NO_VHDL_SUPPORT"
+#altera_option_setup
+
+add_include "$PROJECT_ROOT/rtl/soc"
+add_include "$PROJECT_ROOT/rtl/minimig"
+
+## Top level (this one has global defines, so has to be elaborated first)
+add_file "$PROJECT_ROOT/rtl/soc/minimig_de0_cv_top.v"
+
+## Minimig AGNUS
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_audiodma.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_beamcounter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_bitplanedma.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter_adrgen.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter_barrelshifter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter_fill.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter_minterm.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_copper.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_diskdma.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_refresh.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_spritedma.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus.v"
+
+## Minimig AMBER
+add_file "$PROJECT_ROOT/rtl/minimig/amber.v"
+
+## Minimig Cart (ActionReplay)
+add_file "$PROJECT_ROOT/rtl/minimig/cart.v"
+
+## Minimig DENISE
+add_file "$PROJECT_ROOT/rtl/minimig/denise_bitplane_shifter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_bitplanes.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_collision.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_colortable.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_hamgenerator.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_playfields.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_spritepriority.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_sprites_shifter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_sprites.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise.v"
+
+## Minimig 8250 CIA
+add_file "$PROJECT_ROOT/rtl/minimig/cia_int.v"
+add_file "$PROJECT_ROOT/rtl/minimig/cia_timera.v"
+add_file "$PROJECT_ROOT/rtl/minimig/cia_timerb.v"
+add_file "$PROJECT_ROOT/rtl/minimig/cia_timerd.v"
+add_file "$PROJECT_ROOT/rtl/minimig/ciaa_ps2keyboard_map.v"
+add_file "$PROJECT_ROOT/rtl/minimig/ciaa_ps2keyboard.v"
+add_file "$PROJECT_ROOT/rtl/minimig/ciaa.v"
+add_file "$PROJECT_ROOT/rtl/minimig/ciab.v"
+
+## Minimig GARY
+add_file "$PROJECT_ROOT/rtl/minimig/gary.v"
+
+## Minimig GAYLE
+add_file "$PROJECT_ROOT/rtl/minimig/gayle_fifo.v"
+add_file "$PROJECT_ROOT/rtl/minimig/gayle.v"
+
+## Minimig PAULA
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio_channel.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio_mixer.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio_sigmadelta.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio_volume.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_floppy_fifo.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_floppy.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_intcontroller.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_uart.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula.v"
+
+## Minimig UserIO
+add_file "$PROJECT_ROOT/rtl/minimig/userio_ps2mouse.v"
+add_file "$PROJECT_ROOT/rtl/minimig/userio_osd.v"
+add_file "$PROJECT_ROOT/rtl/minimig/userio_osd_spi.v"
+add_file "$PROJECT_ROOT/rtl/minimig/userio.v"
+
+## Minimig support files
+add_file "$PROJECT_ROOT/rtl/minimig/minimig_syscontrol.v"
+add_file "$PROJECT_ROOT/rtl/minimig/minimig_sram_bridge.v"
+add_file "$PROJECT_ROOT/rtl/minimig/minimig_m68k_bridge.v"
+add_file "$PROJECT_ROOT/rtl/minimig/minimig_bankmapper.v"
+add_file "$PROJECT_ROOT/rtl/minimig/minimig.v"
+
+## SDRAM controller with cache
+add_file "$PROJECT_ROOT/rtl/sdram/dpram_inf_256x32.v"
+add_file "$PROJECT_ROOT/rtl/sdram/dpram_inf_be_1024x16.v"
+add_file "$PROJECT_ROOT/rtl/sdram/cpu_cache_new.v"
+add_file "$PROJECT_ROOT/rtl/sdram/sdram_ctrl.v"
+
+## TG68K CPU
+##add_file "$PROJECT_ROOT/rtl/tg68k/TG68K_Pkg.sv"
+##add_file "$PROJECT_ROOT/rtl/tg68k/TG68K_ALU.sv"
+##add_file "$PROJECT_ROOT/rtl/tg68k/TG68KdotC_Kernel.sv"
+
+## TG68K CPU Wrapper
+add_file "$PROJECT_ROOT/rtl/tg68k/TG68K.v"
+
+## Controller module
+add_file "$PROJECT_ROOT/rtl/ctrl/qmem_arbiter.v"
+add_file "$PROJECT_ROOT/rtl/ctrl/qmem_bridge.v"
+add_file "$PROJECT_ROOT/rtl/ctrl/qmem_bus_nosram.v"
+add_file "$PROJECT_ROOT/rtl/ctrl/qmem_decoder.v"
+add_file "$PROJECT_ROOT/fw/bin/ctrl_boot.v"
+add_file "$PROJECT_ROOT/rtl/ctrl/ctrl_regs.v"
+add_file "$PROJECT_ROOT/rtl/ctrl/ctrl_rst.v"
+add_file "$PROJECT_ROOT/rtl/ctrl/ctrl_top_nosram.v"
+
+## OR1200 CPU
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_alu.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_amultp2_32x32.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_cfgr.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_cpu.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_ctrl.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_dc_fsm.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_dc_ram.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_dc_tag.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_dc_top.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_defines.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_dmmu_tlb.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_dmmu_top.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_du.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_except.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_freeze.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_genpc.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_gmultp2_32x32.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_ic_fsm.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_ic_ram.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_ic_tag.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_ic_top.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_if.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_immu_tlb.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_immu_top.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_iwb_biu.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_lsu.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_mem2reg.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_mult_mac.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_operandmuxes.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_pic.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_pm.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_qmem_top.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_reg2mem.v"
+#add_file "$PROJECT_ROOT/rtl/or1200/or1200_rfram_generic.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_rf.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_sb_fifo.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_sb.v"
+
+## Register File (RF) rams
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_dpram_32x32.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_tpram_32x32.v"
+
+## 8KB cache rams
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_2048x32_bw.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_2048x32.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_512x20.v"
+
+## 4KB cache rams
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_1024x32_bw.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_1024x32.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_256x21.v"
+
+## 512B cache rams
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_128x32.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_32x24.v"
+
+## MMU rams
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_64x14.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_64x22.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_64x24.v"
+
+## (not used?)
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_1024x8.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_spram_2048x8.v"
+
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_sprs.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_tt.v"
+##add_file "$PROJECT_ROOT/rtl/or1200/or1200_wb_biu.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_wbmux.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_xcv_ram32x8d.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_top.v"
+add_file "$PROJECT_ROOT/rtl/or1200/or1200_top_wrapper.v"
+add_include "$PROJECT_ROOT/rtl/or1200"
+
+## Indicators (LEDs, 7-segment displays.)
+add_file "$PROJECT_ROOT/rtl/io/indicators.v"
+add_file "$PROJECT_ROOT/rtl/io/sseg_decode.v"
+add_file "$PROJECT_ROOT/rtl/io/i_sync.v"
+
+## Amiga clock module
+add_file "$PROJECT_ROOT/rtl/clock/amiga_clk.v"
+
+## Support file
+add_file "$PROJECT_ROOT/rtl/fifo/sync_fifo.v"
+
+## SDRAM model
+add_file "$PROJECT_ROOT/lib/models/mt48lc16m16a2.v"
+
+## SD Card model
+add_file "$PROJECT_ROOT/lib/models/sd_card.v"
+
+## Testbench
+add_file "tb.v"
+
+runsim tb

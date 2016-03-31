@@ -1,0 +1,169 @@
+#!/bin/sh
+
+CURDIR=$(dirname "$0")
+PROJECT_ROOT=$CURDIR/../..
+
+# show program usage
+usage () {
+    echo "usage:"
+    echo "   runtest [opts] "
+    echo "opts:            any options you will give on the simulator command line,"
+    echo "                 like +define+VCD, these options will be given to both the"
+    echo "                 compilation and run stage for the two pass simulators"
+    echo ""
+    echo "sample run:"
+    echo "./runtest +define+VERBOSE"
+    echo ""
+}
+
+OPTS=${OPTS:-""}
+RUNTIMEOPTS=${OPTS:-""}
+CLEAN=${CLEAN:-0}
+
+while [ $# -gt 0 ]
+do
+    case $1 in
+        --clean)      CLEAN=1; shift;;
+        --help)       usage; exit 0;;
+        *)            OPTS="$OPTS $1"; RUNTIMEOPTS="$RUNTIMEOPTS $1"; shift;;
+    esac
+done
+
+_FILES=""
+add_file() {
+    _FILES="$_FILES $1"
+}
+
+_INCLUDES=""
+add_include() {
+    _INCLUDES="$_INCLUDES +incdir+$1"
+}
+
+_LIBDIRS=""
+add_libdir() {
+    _LIBDIRS="$_LIBDIRS -y $1"
+}
+
+_LIBFILES=""
+add_libfile() {
+    _LIBFILES="$_LIBFILES -v $1"
+}
+
+_DEFINES=""
+add_define() {
+    _DEFINES="$_DEFINES +define+$1"
+}
+
+runsim () {
+    _TOP=$1
+
+    _LINT_OPTS="+lint=all,noVCDE,noUI,noNS,noZERO,noMSIVD,noPORTFRC"
+    RUNTIMEOPTS="-l simv.log $RUNTIMEOPTS"
+    OPTS="-l compile.log $OPTS"
+
+    _VCS_OPTS="+v2k -timescale=1ns/10ps +plusarg_save -sverilog +libext+.v+.sv +notimingchecks -debug_all"
+
+    if test $CLEAN -eq 1
+    then
+        rm -r csrc; rm -r simv.daidir
+    fi
+    if test x"$_TOP" != x
+    then
+        _TOP="-top ${_TOP}"
+    fi
+
+    # Compile the simulation
+    $VCS_HOME/bin/vcs $_TOP $_VCS_OPTS $_LINT_OPTS $_INCLUDES $_LIBDIRS $_DEFINES $OPTS $_LIBFILES $_FILES
+    # Run the simulation
+    test -f ./simv && ./simv $RUNTIMEOPTS
+}
+
+add_define "SOC_SIM"
+add_define "MINIMIG_VIDEO_FILTER"
+add_include "$PROJECT_ROOT/rtl/minimig"
+
+## Minimig AGNUS
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_audiodma.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_beamcounter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_bitplanedma.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter_adrgen.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter_barrelshifter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter_fill.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter_minterm.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_blitter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_copper.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_diskdma.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_refresh.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus_spritedma.v"
+add_file "$PROJECT_ROOT/rtl/minimig/agnus.v"
+
+## Minimig AMBER
+add_file "$PROJECT_ROOT/rtl/minimig/amber.v"
+
+## Minimig Cart (ActionReplay)
+add_file "$PROJECT_ROOT/rtl/minimig/cart.v"
+
+## Minimig DENISE
+add_file "$PROJECT_ROOT/rtl/minimig/denise_bitplane_shifter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_bitplanes.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_collision.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_colortable.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_hamgenerator.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_playfields.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_spritepriority.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_sprites_shifter.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise_sprites.v"
+add_file "$PROJECT_ROOT/rtl/minimig/denise.v"
+
+## Minimig 8250 CIA
+add_file "$PROJECT_ROOT/rtl/minimig/cia_int.v"
+add_file "$PROJECT_ROOT/rtl/minimig/cia_timera.v"
+add_file "$PROJECT_ROOT/rtl/minimig/cia_timerb.v"
+add_file "$PROJECT_ROOT/rtl/minimig/cia_timerd.v"
+add_file "$PROJECT_ROOT/rtl/minimig/ciaa_ps2keyboard_map.v"
+add_file "$PROJECT_ROOT/rtl/minimig/ciaa_ps2keyboard.v"
+add_file "$PROJECT_ROOT/rtl/minimig/ciaa.v"
+add_file "$PROJECT_ROOT/rtl/minimig/ciab.v"
+
+## Minimig GARY
+add_file "$PROJECT_ROOT/rtl/minimig/gary.v"
+
+## Minimig GAYLE
+add_file "$PROJECT_ROOT/rtl/minimig/gayle_fifo.v"
+add_file "$PROJECT_ROOT/rtl/minimig/gayle.v"
+
+## Minimig PAULA
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio_channel.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio_mixer.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio_sigmadelta.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_audio_volume.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_floppy_fifo.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_floppy.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_intcontroller.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula_uart.v"
+add_file "$PROJECT_ROOT/rtl/minimig/paula.v"
+
+## Minimig UserIO
+add_file "$PROJECT_ROOT/rtl/minimig/userio_ps2mouse.v"
+add_file "$PROJECT_ROOT/rtl/minimig/userio_osd.v"
+add_file "$PROJECT_ROOT/rtl/minimig/userio_osd_spi.v"
+add_file "$PROJECT_ROOT/rtl/minimig/userio.v"
+
+## Minimig support files
+add_file "$PROJECT_ROOT/rtl/minimig/minimig_syscontrol.v"
+add_file "$PROJECT_ROOT/rtl/minimig/minimig_sram_bridge.v"
+add_file "$PROJECT_ROOT/rtl/minimig/minimig_m68k_bridge.v"
+add_file "$PROJECT_ROOT/rtl/minimig/minimig_bankmapper.v"
+add_file "$PROJECT_ROOT/rtl/minimig/minimig.v"
+
+## Amiga clock module
+add_file "$PROJECT_ROOT/rtl/clock/amiga_clk.v"
+
+## Support file
+add_file "$PROJECT_ROOT/rtl/fifo/sync_fifo.v"
+
+## Testbench
+add_file "tb.v"
+
+runsim tb
